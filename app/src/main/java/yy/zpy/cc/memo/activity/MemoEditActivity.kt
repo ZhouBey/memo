@@ -20,8 +20,6 @@ import yy.zpy.cc.memo.interf.IKeyboardShowChangeListener
 import kotlin.properties.Delegates
 
 
-
-
 /**
  * Created by zpy on 2017/9/11.
  */
@@ -121,13 +119,9 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                 selectFolderDialog.dismiss()
                 alert {
                     var etFolderName by Delegates.notNull<EditText>()
-                    var tvTip by Delegates.notNull<TextView>()
                     customView {
                         verticalLayout {
                             lparams(matchParent, wrapContent) {
-                                //                                val padding = dip(15)
-//                                setPadding(padding, padding, padding, 0)
-//                                horizontalMargin = dip(15)
                                 verticalPadding = dip(20)
                                 horizontalPadding = dip(15)
                             }
@@ -144,21 +138,11 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                             }.lparams(matchParent, wrapContent) {
                                 topMargin = dip(20)
                             }
-                            tvTip = textView {
-                                textSize = sp(3).toFloat()
-                                textColor = R.color.colorAccent
-                                visibility = View.INVISIBLE
-                            }.lparams(wrapContent, wrapContent) {
-                                topMargin = dip(3)
-                            }
                         }
                         okButton {
                             val folderName = etFolderName.text.trim().toString()
-                            Log.e("bbbbbb",folderName)
                             if (TextUtils.isEmpty(folderName)) {
-                                tvTip.visibility = View.VISIBLE
-                                tvTip.text = "名字不能为空"
-                                Log.e("aa","名字不能为空")
+                                toast("名字不能为空")
                                 return@okButton
                             }
                             data.forEach {
