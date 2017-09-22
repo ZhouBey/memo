@@ -5,28 +5,47 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.dialog_select_folder_item.view.*
+import org.jetbrains.anko.imageResource
 import yy.zpy.cc.memo.R
 
 
 /**
  * Created by zpy on 2017/9/18.
  */
-class SelectFolderAdapter(var data: List<String>) : RecyclerView.Adapter<SelectFolderAdapter.ViewHolder>() {
+class SelectFolderAdapter(var data: List<MutableMap<String, Any>>, var block: (position: Int, type: Int) -> kotlin.Unit) : RecyclerView.Adapter<SelectFolderAdapter.ViewHolder>() {
     override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
-        holder?.bind(data[position])
+        holder?.bind(position)
     }
 
     override fun getItemCount() = data.size
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int) = ViewHolder(parent?.inflate(R.layout.dialog_select_folder_item))
+    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int) = ViewHolder(parent?.inflate(R.layout.dialog_select_folder_item)).itemClickListen { position, type ->
+        block(position, type)
+    }
 
     inner class ViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
-        fun bind(name: String) = with(itemView) {
+        fun bind(position: Int) = with(itemView) {
+            val item = data[position]
+            val name = item["name"] as String
+            val isSelect = item["isCheck"] as Boolean
             tv_select_folder_name.text = name
+            iv_folder_icon.imageResource = (if (position == 0) R.drawable.ic_all_folder else R.drawable.ic_single_folder)
+            if(isSelect) {
+                iv_select_folder_check.setImageDrawable(resources.getDrawable(R.drawable.ic_select_folder,context.theme))
+            } else{
+                iv_select_folder_check.setImageDrawable(null)
+            }
         }
     }
 }
 
 fun ViewGroup.inflate(layoutRes: Int): View {
     return LayoutInflater.from(context).inflate(layoutRes, this, false)
+}
+
+fun <T : RecyclerView.ViewHolder> T.itemClickListen(event: (position: Int, type: Int) -> Unit): T {
+    itemView.setOnClickListener {
+        event.invoke(adapterPosition, itemViewType)
+    }
+    return this
 }

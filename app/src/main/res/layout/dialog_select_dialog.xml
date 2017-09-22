@@ -25,7 +25,6 @@
         android:layout_height="40dp"
         android:layout_gravity="end"
         android:layout_marginStart="15dp"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
         android:gravity="center_vertical"
         android:paddingEnd="10dp"
         android:paddingStart="10dp"

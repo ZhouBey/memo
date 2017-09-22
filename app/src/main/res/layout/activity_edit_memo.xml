@@ -92,7 +92,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:text="全部标签"
                 android:textColor="@color/colorFont"
                 android:textSize="11sp" />
 

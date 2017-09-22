@@ -10,26 +10,23 @@
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:src="@drawable/ic_launcher_background" />
+        android:layout_centerVertical="true" />
 
     <ImageView
         android:id="@+id/iv_select_folder_check"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="17dp"
+        android:layout_height="17dp"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:src="@drawable/ic_launcher_background"
-        />
+        android:layout_marginEnd="5dp"/>
 
     <TextView
         android:id="@+id/tv_select_folder_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
+        android:layout_marginStart="30dp"
         android:layout_toEndOf="@id/iv_folder_icon"
         android:textColor="@color/colorFont"
-        android:textSize="15sp"
-        android:text="哈哈哈"
-        android:layout_marginStart="20dp"/>
+        android:textSize="15sp" />
 </RelativeLayout>
