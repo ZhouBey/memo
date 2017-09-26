@@ -121,6 +121,10 @@
         android:layout_marginStart="15dp"
         android:background="#F1F1F1" />
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <EditText
         android:id="@+id/et_memo_edit_content"
         android:layout_width="match_parent"
