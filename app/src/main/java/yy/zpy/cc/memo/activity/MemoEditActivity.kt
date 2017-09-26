@@ -14,14 +14,15 @@ import android.view.ViewTreeObserver
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import com.bumptech.glide.Glide
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
+import com.yalantis.ucrop.UCrop
 import com.zhihu.matisse.Matisse
 import com.zhihu.matisse.MimeType
-import com.zhihu.matisse.engine.impl.GlideEngine
 import kotlinx.android.synthetic.main.activity_edit_memo.*
 import kotlinx.android.synthetic.main.dialog_select_dialog.*
 import org.jetbrains.anko.*
@@ -29,6 +30,7 @@ import org.jetbrains.anko.collections.forEachWithIndex
 import yy.zpy.cc.greendaolibrary.bean.GreenDaoType
 import yy.zpy.cc.greendaolibrary.bean.MemoBean
 import yy.zpy.cc.memo.R
+import yy.zpy.cc.memo.custom.MyGlideEngine
 import yy.zpy.cc.memo.dialog.SelectFolderDialog
 import yy.zpy.cc.memo.interf.IBaseUI
 import yy.zpy.cc.memo.interf.IKeyboardShowChangeListener
@@ -48,6 +50,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     var decorView: View? = null
     var selectFolderDialog by Delegates.notNull<SelectFolderDialog>()
     var isFinish = false
+    var multiplePermissionsListener by Delegates.notNull<MultiplePermissionsListener>()
 
     val names = mutableListOf("aa", "bb", "cc", "dd", "ee", "ff", "gg")
     val data = mutableListOf<MutableMap<String, Any>>()
@@ -137,26 +140,23 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 Dexter.withActivity(this@MemoEditActivity)
                         .withPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        .withListener(object : MultiplePermissionsListener {
-                            override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
-
-                            }
-
-                            override fun onPermissionRationaleShouldBeShown(permissions: MutableList<PermissionRequest>?, token: PermissionToken?) {
-
-                            }
-                        }).check()
+                        .withListener(multiplePermissionsListener).check()
                 return@setOnClickListener
             }
-            Matisse.from(this@MemoEditActivity)
-                    .choose(MimeType.allOf())
-                    .countable(true)
-                    .maxSelectable(9)
-                    .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
-                    .thumbnailScale(0.85f)
-                    .imageEngine(GlideEngine())
-                    .forResult(Constant.REQUEST_CODE_CHOOSE)
+            pickerPicture()
         }
+    }
+
+    fun pickerPicture() {
+        Matisse.from(this@MemoEditActivity)
+                .choose(MimeType.allOf())
+                .theme(R.style.Memo_Zhihu)
+                .countable(true)
+                .maxSelectable(1)
+                .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                .thumbnailScale(0.85f)
+                .imageEngine(MyGlideEngine())
+                .forResult(Constant.REQUEST_CODE_CHOOSE)
     }
 
     override fun initView() {
@@ -243,6 +243,31 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             }
 
         })
+        multiplePermissionsListener = object : MultiplePermissionsListener {
+            override fun onPermissionRationaleShouldBeShown(permissions: MutableList<PermissionRequest>, token: PermissionToken) {
+                alert("选择图片需要访问相机和相册的权限", "权限说明") {
+                    okButton {
+                        token.continuePermissionRequest()
+                    }
+                    cancelButton {
+                        token.cancelPermissionRequest()
+                    }
+                }.show().setOnDismissListener {
+                    token.cancelPermissionRequest()
+                }
+            }
+
+            override fun onPermissionsChecked(report: MultiplePermissionsReport) {
+                Log.e("aaa", report.isAnyPermissionPermanentlyDenied.toString())
+                if (report.areAllPermissionsGranted()) {
+                    pickerPicture()
+                } else {
+                    report.deniedPermissionResponses.forEach {
+                        Log.e("被拒绝的权限", it.permissionName)
+                    }
+                }
+            }
+        }
     }
 
     override fun show() {
@@ -259,10 +284,26 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == Constant.REQUEST_CODE_CHOOSE && resultCode == RESULT_OK) {
-            val obtainResult = Matisse.obtainResult(data)
-            obtainResult.forEach {
-                error(it.toString())
+        if (resultCode == RESULT_OK) {
+            if (requestCode == Constant.REQUEST_CODE_CHOOSE) {
+                val obtainResult = Matisse.obtainResult(data)
+                error(obtainResult[0].path)
+                UCrop.of(obtainResult[0], obtainResult[0])
+                        .withOptions(UCrop.Options().apply {
+                            setToolbarColor(resources.getColor(R.color.colorPrimary))
+                            setStatusBarColor(resources.getColor(R.color.colorPrimaryDark))
+                            setActiveWidgetColor(resources.getColor(R.color.colorPrimary))
+                        })
+                        .start(this@MemoEditActivity)
+
+            }
+            if (requestCode == UCrop.REQUEST_CROP) {
+                if (data != null) {
+                    val resultUri = UCrop.getOutput(data)
+                    Glide.with(this@MemoEditActivity).load(resultUri).into(iv_image)
+                }
+            } else if (resultCode == UCrop.RESULT_ERROR) {
+
             }
         }
     }

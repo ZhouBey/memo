@@ -26,6 +26,20 @@
         <activity
             android:name=".activity.MemoEditActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="yy.zpy.cc.memo.file.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths_public" />
+        </provider>
+        <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
 
 </manifest>

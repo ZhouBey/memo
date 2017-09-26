@@ -43,4 +43,9 @@
         <item name="android:backgroundDimEnabled">true</item>
         <item name="android:backgroundDimAmount">0.2</item>
     </style>
+
+    <style name="Memo_Zhihu" parent="Matisse.Zhihu">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+    </style>
 </resources>

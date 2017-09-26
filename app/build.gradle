@@ -37,8 +37,6 @@ dependencies {
     compile "org.jetbrains.anko:anko-sdk25-coroutines:$anko_version"
     compile "org.jetbrains.anko:anko-appcompat-v7-coroutines:$anko_version"
     implementation project(':greendaolibrary')
-    //富文本
-    compile 'com.github.sendtion:XRichText:1.1'
     //图片选择器
     compile 'com.zhihu.android:matisse:0.4.3'
     //显示图片glide
@@ -46,4 +44,6 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.1.1'
     //6.0+申请权限
     compile 'com.karumi:dexter:4.1.0'
+    //裁剪图片
+    compile 'com.github.yalantis:ucrop:2.2.1'
 }
