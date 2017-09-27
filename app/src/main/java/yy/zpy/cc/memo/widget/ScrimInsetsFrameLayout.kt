@@ -36,7 +36,6 @@ class ScrimInsetsFrameLayout : FrameLayout {
                 R.styleable.ScrimInsetsView, defStyle, 0) ?: return
         mInsetForeground = a.getDrawable(R.styleable.ScrimInsetsView_insetForeground)
         a.recycle()
-
         setWillNotDraw(true)
     }
 

@@ -9,13 +9,14 @@ import android.view.Gravity
 import kotlinx.android.synthetic.main.dialog_select_dialog.*
 import org.jetbrains.anko.dip
 import yy.zpy.cc.memo.R
-import yy.zpy.cc.memo.adapter.SelectFolderAdapter
+import yy.zpy.cc.memo.adapter.FolderAdapter
+import yy.zpy.cc.memo.data.Folder
 
 
 /**
  * Created by zpy on 2017/9/18.
  */
-class SelectFolderDialog(context: Context, themeResId: Int, var data: List<MutableMap<String,Any>>, var onClickListener: OnClickListener) : Dialog(context, themeResId) {
+class SelectFolderDialog(context: Context, themeResId: Int, var data: List<Folder>, var onClickListener: OnClickListener) : Dialog(context, themeResId) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.dialog_select_dialog)
@@ -31,7 +32,7 @@ class SelectFolderDialog(context: Context, themeResId: Int, var data: List<Mutab
         rv_dialog_folder.setHasFixedSize(true)
         val linearLayoutManager = LinearLayoutManager(context)
         rv_dialog_folder.layoutManager = linearLayoutManager
-        rv_dialog_folder.adapter = SelectFolderAdapter(data) { position, type -> onClickListener.itemClick(position, type) }
+        rv_dialog_folder.adapter = FolderAdapter(data,true) { position, type -> onClickListener.itemClick(position, type) }
         val dividerItemDecoration = DividerItemDecoration(context, linearLayoutManager.orientation)
         dividerItemDecoration.setDrawable(context.resources.getDrawable(R.drawable.divider_item_decoration, context.theme))
         rv_dialog_folder.addItemDecoration(dividerItemDecoration)

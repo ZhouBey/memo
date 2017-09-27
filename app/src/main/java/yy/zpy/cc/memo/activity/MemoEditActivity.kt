@@ -26,11 +26,12 @@ import com.zhihu.matisse.MimeType
 import kotlinx.android.synthetic.main.activity_edit_memo.*
 import kotlinx.android.synthetic.main.dialog_select_dialog.*
 import org.jetbrains.anko.*
-import org.jetbrains.anko.collections.forEachWithIndex
+import yy.zpy.cc.greendaolibrary.bean.FolderBean
 import yy.zpy.cc.greendaolibrary.bean.GreenDaoType
 import yy.zpy.cc.greendaolibrary.bean.MemoBean
 import yy.zpy.cc.memo.R
 import yy.zpy.cc.memo.custom.MyGlideEngine
+import yy.zpy.cc.memo.data.Folder
 import yy.zpy.cc.memo.dialog.SelectFolderDialog
 import yy.zpy.cc.memo.interf.IBaseUI
 import yy.zpy.cc.memo.interf.IKeyboardShowChangeListener
@@ -52,8 +53,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     var isFinish = false
     var multiplePermissionsListener by Delegates.notNull<MultiplePermissionsListener>()
 
-    val names = mutableListOf("aa", "bb", "cc", "dd", "ee", "ff", "gg")
-    val data = mutableListOf<MutableMap<String, Any>>()
+    val data = mutableListOf<Folder>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initView()
@@ -181,19 +181,22 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             }
         }
         decorView?.viewTreeObserver?.addOnGlobalLayoutListener(globalListener)
-        names.forEachWithIndex { index, item ->
-            data.add(mutableMapOf("name" to item, "isCheck" to (index == 0)))
+        val folderBeanList = app.folderBeanDao?.loadAll()
+        folderBeanList?.forEach {
+            val folder = Folder()
+            folder.name = it.name
+            data.add(folder)
         }
-        btn_select_fold.text = names[0]
+        btn_select_fold.text = data[0].name
         selectFolderDialog = SelectFolderDialog(this, R.style.WhiteDialog, data, object : SelectFolderDialog.OnClickListener {
             override fun itemClick(position: Int, type: Int) {
                 Log.e("aa", position.toString())
                 data.forEach {
-                    it["isCheck"] = false
+                    it.check = false
                 }
-                data[position]["isCheck"] = true
+                data[position].check = true
                 selectFolderDialog.rv_dialog_folder.adapter.notifyDataSetChanged()
-                val name = data[position]["name"] as String
+                val name = data[position].name
                 btn_select_fold.text = name
                 selectFolderDialog.dismiss()
             }
@@ -229,9 +232,18 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                                 return@okButton
                             }
                             data.forEach {
-                                it["isCheck"] = false
+                                it.check = false
                             }
-                            data.add(mutableMapOf("name" to folderName, "isCheck" to true))
+                            val folder = Folder()
+                            folder.name = folderName
+                            folder.check = true
+                            data.add(folder)
+                            val folderBean = FolderBean()
+                            folderBean.createTime = System.currentTimeMillis()
+                            folderBean.greenDaoType = GreenDaoType.TEXT
+                            folderBean.name = folderName
+                            folderBean.isLock = false
+                            app.folderBeanDao?.insert(folder)
                             selectFolderDialog.rv_dialog_folder.adapter.notifyDataSetChanged()
                             btn_select_fold.text = folderName
                         }

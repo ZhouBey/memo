@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">微便签</string>
-    <string name="action_settings">设置</string>
-    <string name="action_about">关于</string>
+    <string name="settings">设置</string>
+    <string name="create">新建</string>
+    <string name="about">关于</string>
     <string name="open">打开</string>
     <string name="close">关闭</string>
 </resources>

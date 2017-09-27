@@ -1,20 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <yy.zpy.cc.memo.widget.ScrimInsetsFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/container"
-    android:layout_width="wrap_content"
+    android:layout_width="260dp"
     android:layout_height="match_parent"
     android:layout_gravity="start"
     android:elevation="8dp"
-    android:fitsSystemWindows="true"
-    app:insetForeground="#4000">
+    android:fitsSystemWindows="true">
 
-    <ListView
-        android:id="@+id/list_drawer"
-        android:layout_width="260dp"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/white"
-        android:choiceMode="singleChoice"
-        android:fitsSystemWindows="true" />
+        android:background="@color/colorWhite">
+
+        <ImageView
+            android:id="@+id/iv_drawer_image"
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:layout_alignParentTop="true"
+            android:scaleType="centerCrop"
+            android:src="@drawable/img_drawer_background" />
+
+        <LinearLayout
+            android:id="@+id/rl_drawer_setting"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingBottom="15dp"
+            android:paddingEnd="20dp"
+            android:paddingStart="20dp"
+            android:paddingTop="15dp">
+
+            <ImageView
+                android:layout_width="17dp"
+                android:layout_height="17dp"
+                android:src="@drawable/ic_setting" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:text="@string/settings" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rl_drawer_create"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/rl_drawer_setting"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingBottom="15dp"
+            android:paddingEnd="20dp"
+            android:paddingStart="20dp"
+            android:paddingTop="15dp">
+
+            <ImageView
+                android:layout_width="17dp"
+                android:layout_height="17dp"
+                android:src="@drawable/ic_create" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:text="@string/create" />
+        </LinearLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_drawer_folder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/rl_drawer_create"
+            android:layout_below="@id/iv_drawer_image"
+            android:background="@color/colorWhite"
+            android:fitsSystemWindows="true" />
+    </RelativeLayout>
+
 
 </yy.zpy.cc.memo.widget.ScrimInsetsFrameLayout>

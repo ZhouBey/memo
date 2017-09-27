@@ -23,6 +23,6 @@ abstract class BaseActivity : AppCompatActivity(), AnkoLogger {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(getLayout())
-        app = App.getInstance()
+        app = App.instance
     }
 }

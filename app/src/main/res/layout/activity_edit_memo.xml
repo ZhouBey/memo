@@ -93,7 +93,8 @@
                 android:layout_gravity="center_vertical"
                 android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:textColor="@color/colorFont"
-                android:textSize="11sp" />
+                android:textSize="11sp"
+                android:textAllCaps="false"/>
 
             <ImageView
                 android:layout_width="12dp"

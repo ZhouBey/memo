@@ -7,12 +7,13 @@ import android.view.ViewGroup
 import kotlinx.android.synthetic.main.dialog_select_folder_item.view.*
 import org.jetbrains.anko.imageResource
 import yy.zpy.cc.memo.R
+import yy.zpy.cc.memo.data.Folder
 
 
 /**
  * Created by zpy on 2017/9/18.
  */
-class SelectFolderAdapter(var data: List<MutableMap<String, Any>>, var block: (position: Int, type: Int) -> kotlin.Unit) : RecyclerView.Adapter<SelectFolderAdapter.ViewHolder>() {
+class FolderAdapter(var data: List<Folder>, var isSelect: Boolean, var block: (position: Int, type: Int) -> kotlin.Unit) : RecyclerView.Adapter<FolderAdapter.ViewHolder>() {
     override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
         holder?.bind(position)
     }
@@ -26,14 +27,22 @@ class SelectFolderAdapter(var data: List<MutableMap<String, Any>>, var block: (p
     inner class ViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
         fun bind(position: Int) = with(itemView) {
             val item = data[position]
-            val name = item["name"] as String
-            val isSelect = item["isCheck"] as Boolean
+            val name = item.name
+            val isCheck = item.check
             tv_select_folder_name.text = name
             iv_folder_icon.imageResource = (if (position == 0) R.drawable.ic_all_folder else R.drawable.ic_single_folder)
-            if(isSelect) {
-                iv_select_folder_check.setImageDrawable(resources.getDrawable(R.drawable.ic_select_folder,context.theme))
-            } else{
-                iv_select_folder_check.setImageDrawable(null)
+            if (isSelect) {
+                iv_select_folder_check.visibility = View.VISIBLE
+                tv_folder_count.visibility = View.GONE
+                if (isCheck) {
+                    iv_select_folder_check.setImageDrawable(resources.getDrawable(R.drawable.ic_select_folder, context.theme))
+                } else {
+                    iv_select_folder_check.setImageDrawable(null)
+                }
+            } else {
+                iv_select_folder_check.visibility = View.GONE
+                tv_folder_count.visibility = View.VISIBLE
+                tv_folder_count.text = item.count.toString()
             }
         }
     }
