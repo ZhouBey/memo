@@ -11,6 +11,7 @@ import java.util.List;
 import yy.zpy.cc.greendaolibrary.bean.DaoMaster;
 import yy.zpy.cc.greendaolibrary.bean.DaoSession;
 import yy.zpy.cc.greendaolibrary.bean.FolderBeanDao;
+import yy.zpy.cc.greendaolibrary.bean.ImageBeanDao;
 import yy.zpy.cc.greendaolibrary.bean.MemoBeanDao;
 import yy.zpy.cc.greendaolibrary.helper.GreenDaoOpenHelper;
 
@@ -22,6 +23,7 @@ public class App extends Application {
 
     private MemoBeanDao memoBeanDao;
     private FolderBeanDao folderBeanDao;
+    private ImageBeanDao imageBeanDao;
     private static App INSTANCE;
 
     @Override
@@ -34,6 +36,7 @@ public class App extends Application {
             DaoSession daoSession = new DaoMaster(db).newSession();
             memoBeanDao = daoSession.getMemoBeanDao();
             folderBeanDao = daoSession.getFolderBeanDao();
+            imageBeanDao = daoSession.getImageBeanDao();
         }
     }
 
@@ -59,5 +62,9 @@ public class App extends Application {
     }
     public static App getInstance() {
         return INSTANCE;
+    }
+
+    public ImageBeanDao getImageBeanDao() {
+        return imageBeanDao;
     }
 }

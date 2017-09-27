@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<yy.zpy.cc.memo.widget.ScrimInsetsFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/container"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:layout_gravity="start"
+    android:elevation="8dp"
+    android:fitsSystemWindows="true"
+    app:insetForeground="#4000">
+
+    <ListView
+        android:id="@+id/list_drawer"
+        android:layout_width="260dp"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:choiceMode="singleChoice"
+        android:fitsSystemWindows="true" />
+
+</yy.zpy.cc.memo.widget.ScrimInsetsFrameLayout>

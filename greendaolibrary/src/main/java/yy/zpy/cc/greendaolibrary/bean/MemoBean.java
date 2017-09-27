@@ -28,12 +28,12 @@ public class MemoBean {
     private long updateTime;
     private long deleteTime;
     @Convert(converter = GreenDaoTypeConverter.class, columnType = String.class)
-    private GreenDaoType planType;
+    private GreenDaoType greenDaoType;
 
-    @Generated(hash = 2114047551)
+    @Generated(hash = 131344341)
     public MemoBean(Long id, long folderID, String title, String content,
             boolean isLock, long createTime, long updateTime, long deleteTime,
-            GreenDaoType planType) {
+            GreenDaoType greenDaoType) {
         this.id = id;
         this.folderID = folderID;
         this.title = title;
@@ -42,7 +42,7 @@ public class MemoBean {
         this.createTime = createTime;
         this.updateTime = updateTime;
         this.deleteTime = deleteTime;
-        this.planType = planType;
+        this.greenDaoType = greenDaoType;
     }
 
     @Generated(hash = 336734028)
@@ -113,27 +113,12 @@ public class MemoBean {
         this.deleteTime = deleteTime;
     }
 
-    public GreenDaoType getPlanType() {
-        return planType;
+    public GreenDaoType getGreenDaoType() {
+        return greenDaoType;
     }
 
-    public void setPlanType(GreenDaoType planType) {
-        this.planType = planType;
-    }
-
-    @Override
-    public String toString() {
-        return "Memo{" +
-                "id=" + id +
-                ", folderID=" + folderID +
-                ", title='" + title + '\'' +
-                ", content='" + content + '\'' +
-                ", isLock=" + isLock +
-                ", createTime=" + createTime +
-                ", updateTime=" + updateTime +
-                ", deleteTime=" + deleteTime +
-                ", planType=" + planType +
-                '}';
+    public void setGreenDaoType(GreenDaoType greenDaoType) {
+        this.greenDaoType = greenDaoType;
     }
 
     public boolean getIsLock() {
@@ -142,5 +127,20 @@ public class MemoBean {
 
     public void setIsLock(boolean isLock) {
         this.isLock = isLock;
+    }
+
+    @Override
+    public String toString() {
+        return "MemoBean{" +
+                "id=" + id +
+                ", folderID=" + folderID +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", isLock=" + isLock +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                ", deleteTime=" + deleteTime +
+                ", greenDaoType=" + greenDaoType +
+                '}';
     }
 }

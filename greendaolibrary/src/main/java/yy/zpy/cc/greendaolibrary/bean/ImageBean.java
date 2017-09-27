@@ -11,36 +11,35 @@ import yy.zpy.cc.greendaolibrary.helper.GreenDaoTypeConverter;
 /**
  * Created by zpy on 2017/9/26.
  */
-
 @Entity(indexes = {
         @Index(value = "id,createTime ASC", unique = true)
 })
-public class FolderBean {
-    static final long serialVersionUID = 41L;
+public class ImageBean {
+    static final long serialVersionUID = 46L;
     @Id
     private Long id;
-    private String name;
-    private Long createTime;
+    private String imageID;
+    private String path;
+    private String createTime;
     private Long updateTime;
     private Long deleteTime;
-    private Boolean isLock;
     @Convert(converter = GreenDaoTypeConverter.class, columnType = String.class)
     private GreenDaoType greenDaoType;
 
-    @Generated(hash = 1970749701)
-    public FolderBean(Long id, String name, Long createTime, Long updateTime,
-            Long deleteTime, Boolean isLock, GreenDaoType greenDaoType) {
+    @Generated(hash = 2075608301)
+    public ImageBean(Long id, String imageID, String path, String createTime,
+            Long updateTime, Long deleteTime, GreenDaoType greenDaoType) {
         this.id = id;
-        this.name = name;
+        this.imageID = imageID;
+        this.path = path;
         this.createTime = createTime;
         this.updateTime = updateTime;
         this.deleteTime = deleteTime;
-        this.isLock = isLock;
         this.greenDaoType = greenDaoType;
     }
 
-    @Generated(hash = 1368532233)
-    public FolderBean() {
+    @Generated(hash = 645668394)
+    public ImageBean() {
     }
 
     public Long getId() {
@@ -51,19 +50,27 @@ public class FolderBean {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getImageID() {
+        return imageID;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setImageID(String imageID) {
+        this.imageID = imageID;
     }
 
-    public Long getCreateTime() {
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public String getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Long createTime) {
+    public void setCreateTime(String createTime) {
         this.createTime = createTime;
     }
 
@@ -83,32 +90,11 @@ public class FolderBean {
         this.deleteTime = deleteTime;
     }
 
-    public Boolean getIsLock() {
-        return this.isLock;
-    }
-
-    public void setIsLock(Boolean isLock) {
-        this.isLock = isLock;
-    }
-
     public GreenDaoType getGreenDaoType() {
         return greenDaoType;
     }
 
     public void setGreenDaoType(GreenDaoType greenDaoType) {
         this.greenDaoType = greenDaoType;
-    }
-
-    @Override
-    public String toString() {
-        return "FolderBean{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", createTime=" + createTime +
-                ", updateTime=" + updateTime +
-                ", deleteTime=" + deleteTime +
-                ", isLock=" + isLock +
-                ", greenDaoType=" + greenDaoType +
-                '}';
     }
 }

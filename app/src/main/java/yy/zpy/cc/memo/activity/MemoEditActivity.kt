@@ -120,9 +120,9 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                 val memoBean = MemoBean()
                 memoBean.content = memoContent
                 memoBean.createTime = System.currentTimeMillis()
-                memoBean.planType = GreenDaoType.TEXT
+                memoBean.greenDaoType = GreenDaoType.TEXT
                 memoBean.folderID = 0
-                app.memoBeanDao.insert(memoBean)
+//                app.memoBeanDao.insert(memoBean)
             }
         }
         ib_image_or_delete.setOnClickListener {
