@@ -20,14 +20,18 @@ public class ImageBean {
     private Long id;
     private String imageID;
     private String path;
-    private String createTime;
+    private Long createTime;
     private Long updateTime;
     private Long deleteTime;
     @Convert(converter = GreenDaoTypeConverter.class, columnType = String.class)
     private GreenDaoType greenDaoType;
+    
+    public ImageBean() {
+        this.createTime = System.currentTimeMillis();
+    }
 
-    @Generated(hash = 2075608301)
-    public ImageBean(Long id, String imageID, String path, String createTime,
+    @Generated(hash = 583304812)
+    public ImageBean(Long id, String imageID, String path, Long createTime,
             Long updateTime, Long deleteTime, GreenDaoType greenDaoType) {
         this.id = id;
         this.imageID = imageID;
@@ -36,10 +40,6 @@ public class ImageBean {
         this.updateTime = updateTime;
         this.deleteTime = deleteTime;
         this.greenDaoType = greenDaoType;
-    }
-
-    @Generated(hash = 645668394)
-    public ImageBean() {
     }
 
     public Long getId() {
@@ -66,11 +66,11 @@ public class ImageBean {
         this.path = path;
     }
 
-    public String getCreateTime() {
+    public Long getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(String createTime) {
+    public void setCreateTime(Long createTime) {
         this.createTime = createTime;
     }
 

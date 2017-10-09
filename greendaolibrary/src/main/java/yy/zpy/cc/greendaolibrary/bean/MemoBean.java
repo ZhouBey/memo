@@ -2,11 +2,11 @@ package yy.zpy.cc.greendaolibrary.bean;
 
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Index;
 
 import yy.zpy.cc.greendaolibrary.helper.GreenDaoTypeConverter;
-import org.greenrobot.greendao.annotation.Generated;
 
 /**
  * Created by zpy on 2017/9/26.
@@ -32,8 +32,8 @@ public class MemoBean {
 
     @Generated(hash = 131344341)
     public MemoBean(Long id, long folderID, String title, String content,
-            boolean isLock, long createTime, long updateTime, long deleteTime,
-            GreenDaoType greenDaoType) {
+                    boolean isLock, long createTime, long updateTime, long deleteTime,
+                    GreenDaoType greenDaoType) {
         this.id = id;
         this.folderID = folderID;
         this.title = title;
@@ -45,8 +45,8 @@ public class MemoBean {
         this.greenDaoType = greenDaoType;
     }
 
-    @Generated(hash = 336734028)
     public MemoBean() {
+        this.createTime = System.currentTimeMillis();
     }
 
     public Long getId() {

@@ -39,8 +39,8 @@ public class FolderBean {
         this.greenDaoType = greenDaoType;
     }
 
-    @Generated(hash = 1368532233)
     public FolderBean() {
+        this.createTime = System.currentTimeMillis();
     }
 
     public Long getId() {

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.support.annotation.LayoutRes
 import android.support.v7.app.AppCompatActivity
-import org.jetbrains.anko.AnkoLogger
 import yy.zpy.cc.memo.App
 import kotlin.properties.Delegates
 
@@ -14,7 +13,7 @@ import kotlin.properties.Delegates
 /**
  * Created by zpy on 2017/9/18.
  */
-abstract class BaseActivity : AppCompatActivity(), AnkoLogger {
+abstract class BaseActivity : AppCompatActivity() {
     @LayoutRes
     abstract fun getLayout(): Int
 

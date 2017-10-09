@@ -24,7 +24,6 @@ public class GreenDaoOpenHelper extends DatabaseOpenHelper {
     public void onCreate(Database db) {
         createAllTables(db, true);
         FolderBean folderBean = new FolderBean();
-        folderBean.setCreateTime(System.currentTimeMillis());
         folderBean.setGreenDaoType(GreenDaoType.TEXT);
         folderBean.setName("全部便签");
         folderBean.setIsLock(false);

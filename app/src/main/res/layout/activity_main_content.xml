@@ -28,7 +28,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:textColor="@color/colorWhite"
-                    android:textSize="15sp" />
+                    android:textSize="17sp" />
 
                 <ImageButton
                     android:layout_width="28dp"
