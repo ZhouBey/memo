@@ -12,8 +12,8 @@ class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
-        val a = "zhoupeiyuan"
-        val b = "pei"
-        println(a.indexOf(b).toString())
+        val a = "file:///storage/emulated/0/MemoCropPictures/1507610906725.png"
+        val substring = a.substring(a.lastIndexOf("/") + 1, a.length - 4)
+        println(substring)
     }
 }

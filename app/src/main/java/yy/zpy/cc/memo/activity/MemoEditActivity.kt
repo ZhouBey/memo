@@ -9,11 +9,12 @@ import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.text.*
+import android.text.Editable
+import android.text.Spanned
+import android.text.TextUtils
+import android.text.TextWatcher
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
-import android.text.style.ImageSpan
-import android.text.style.LineHeightSpan
 import android.view.Gravity
 import android.view.View
 import android.view.ViewTreeObserver
@@ -32,7 +33,6 @@ import org.jetbrains.anko.*
 import permissions.dispatcher.*
 import yy.zpy.cc.greendaolibrary.bean.FolderBean
 import yy.zpy.cc.greendaolibrary.bean.GreenDaoType
-import yy.zpy.cc.greendaolibrary.bean.ImageBean
 import yy.zpy.cc.greendaolibrary.bean.MemoBean
 import yy.zpy.cc.memo.R
 import yy.zpy.cc.memo.custom.MyGlideEngine
@@ -43,7 +43,6 @@ import yy.zpy.cc.memo.interf.IKeyboardShowChangeListener
 import yy.zpy.cc.memo.logcat
 import yy.zpy.cc.memo.util.Constant
 import java.io.File
-import kotlin.coroutines.experimental.EmptyCoroutineContext.plus
 import kotlin.properties.Delegates
 
 
@@ -115,7 +114,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             selectFolderDialog.show()
         }
         ib_edit_submit_or_preview.setOnClickListener {
-            val memoContent = etMemoContent.text.trim().toString()
+            val memoContent = generateText()
             if (isFinish) {
                 if (TextUtils.isEmpty(memoContent)) {
                     toast("内容不能为空")
@@ -316,19 +315,24 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             }
             if (data != null) {
                 val resultUri = UCrop.getOutput(data)
-                resultUri?.run {
-                    val imageID = resultUri.path.substring(resultUri.path.lastIndexOf("/") + 1)
-                    val imageBean = ImageBean()
-                    imageBean.greenDaoType = GreenDaoType.TEXT
-                    imageBean.imageID = imageID
-                    imageBean.path = resultUri.path
-                }
+//                resultUri?.run {
+//                    val imageID = resultUri.path.substring(resultUri.path.lastIndexOf("/") + 1)
+//                    val imageBean = ImageBean()
+//                    imageBean.greenDaoType = GreenDaoType.TEXT
+//                    imageBean.imageID = imageID
+//                    imageBean.path = resultUri.path
+//                }
                 val imageView = getImageView()
+                val path = resultUri?.path
+                val imageID = path?.substring(path.lastIndexOf("/") + 1, path.length - 4)
+                imageView.setTag(R.id.tag_image_view_uri, imageID)
                 Glide.with(this@MemoEditActivity).load(resultUri).into(imageView)
                 ll_root_memo_content.addView(imageView)
                 val editText = getEditText()
                 ll_root_memo_content.addView(editText)
                 editText.requestFocus()
+                val firstChild = ll_root_memo_content.getChildAt(0)
+                if (firstChild is EditText && TextUtils.isEmpty(firstChild.text.trim())) ll_root_memo_content.removeViewAt(0)
             } else {
                 logcat("data is null")
             }
@@ -377,6 +381,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         }.show()
     }
 
+    @SuppressLint("NeedOnRequestPermissionsResult")
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         onRequestPermissionsResult(requestCode, grantResults)
@@ -386,11 +391,10 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         return EditText(this@MemoEditActivity).apply {
             layoutParams = LinearLayout.LayoutParams(matchParent, wrapContent)
             gravity = Gravity.TOP
-            setLineSpacing(0f, 1.3f)
+            setLineSpacing(0f, 1.1f)
             textColor = R.color.colorFont
             textSize = 16f
             background = null
-            singleLine = false
         }
     }
 
@@ -399,5 +403,20 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             layoutParams = LinearLayout.LayoutParams(matchParent, wrapContent)
             scaleType = ImageView.ScaleType.FIT_XY
         }
+    }
+
+    fun generateText(): String {
+        val content = StringBuilder()
+        ll_root_memo_content.forEachChild {
+            when (it) {
+                is EditText -> {
+                    content.append(it.text.trim())
+                }
+                is ImageView -> {
+                    content.append("<img id=\"").append(it.getTag(R.id.tag_image_view_uri)).append("\"/>")
+                }
+            }
+        }
+        return content.toString()
     }
 }

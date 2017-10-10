@@ -5,4 +5,5 @@
     <string name="about">关于</string>
     <string name="open">打开</string>
     <string name="close">关闭</string>
+    <item name="tag_image_view_uri" type="id"/>
 </resources>
