@@ -40,6 +40,11 @@ class MemoAdapter(val data: List<MemoBean>, var block: (position: Int, type: Int
             val time = Calendar.getInstance()
             time.timeInMillis = item.createTime
             tv_item_time.text = DateFormat.format("HH:mm", time).toString()
+            if (content.contains("<img id=")) {
+                iv_item_picture.visibility = View.VISIBLE
+            } else {
+                iv_item_picture.visibility = View.INVISIBLE
+            }
         }
     }
 }
