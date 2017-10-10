@@ -13,6 +13,7 @@ import android.text.Editable
 import android.text.Spanned
 import android.text.TextUtils
 import android.text.TextWatcher
+import android.text.format.DateFormat
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import android.view.Gravity
@@ -43,6 +44,7 @@ import yy.zpy.cc.memo.interf.IKeyboardShowChangeListener
 import yy.zpy.cc.memo.logcat
 import yy.zpy.cc.memo.util.Constant
 import java.io.File
+import java.util.*
 import kotlin.properties.Delegates
 
 
@@ -61,6 +63,8 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     var isFinish = false
     var selectFolderIndex = 0
     val folderDataList = mutableListOf<Folder>()
+    var memoBean: MemoBean? = null
+    var memoBeanID: Long? = -1L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,7 +105,6 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     }
 
     override fun viewListener() {
-        val etMemoContent = ll_root_memo_content.getChildAt(0) as EditText
         ib_back.setOnClickListener {
             this@MemoEditActivity.finish()
             overridePendingTransition(R.anim.anim_slide_no, R.anim.anim_slide_out_right)
@@ -110,7 +113,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             lockStatus = !lockStatus
             iv_lock_status.isSelected = lockStatus
         }
-        btn_select_fold.setOnClickListener {
+        ll_select_fold.setOnClickListener {
             selectFolderDialog.show()
         }
         ib_edit_submit_or_preview.setOnClickListener {
@@ -126,11 +129,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                 if (TextUtils.isEmpty(memoContent)) {
                     return@setOnClickListener
                 }
-                val memoBean = MemoBean()
-                memoBean.content = memoContent
-                memoBean.greenDaoType = GreenDaoType.TEXT
-                memoBean.folderID = folderDataList[selectFolderIndex].id
-                app.memoBeanDao?.insert(memoBean)
+                saveMemo(memoContent)
             }
         }
         ib_image_or_delete.setOnClickListener {
@@ -146,6 +145,20 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                 return@setOnClickListener
             }
             pickerPictureWithPermissionCheck()
+        }
+    }
+
+    fun saveMemo(content: String) {
+        if (memoBeanID == -1L) {
+            val memoBean = MemoBean()
+            memoBean.content = content
+            memoBean.greenDaoType = GreenDaoType.TEXT
+            memoBean.folderID = folderDataList[selectFolderIndex].id
+            memoBeanID = app.memoBeanDao?.insert(memoBean)
+        } else {
+            val memoBean = app.memoBeanDao?.load(memoBeanID)
+            memoBean?.content = content
+            app.memoBeanDao?.update(memoBean)
         }
     }
 
@@ -165,12 +178,20 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                         keyboardShowChangeListener.keyboardShow()
                     } else if (lastVisibleDecorViewHeight + MIN_KEYBOARD_HEIGHT_PX < visibleDecorViewHeight) {
                         keyboardShowChangeListener.keyboardHidden()
+                        val content = generateText()
+                        if (!TextUtils.isEmpty(content)) {
+                            saveMemo(content)
+                        }
                     }
                 }
                 lastVisibleDecorViewHeight = visibleDecorViewHeight
             }
         }
         decorView?.viewTreeObserver?.addOnGlobalLayoutListener(globalListener)
+        val memo = intent?.extras?.get("memo")
+        if (memo != null) {
+            memoBean = memo as MemoBean
+        }
         val folderBeanList = app.folderBeanDao?.loadAll()
         folderBeanList?.forEach {
             val folder = Folder()
@@ -178,7 +199,20 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             folder.id = it.id
             folderDataList.add(folder)
         }
-        btn_select_fold.text = folderDataList[0].name
+        if (memoBean == null) {
+            folderDataList[0].check = true
+            tv_select_fold.text = folderDataList[0].name
+            tv_memo_time.text = String.format("今天 %s", DateFormat.format("HH:mm", Calendar.getInstance()).toString())
+        } else {
+            val folderBean = app.folderBeanDao?.load(memoBean?.folderID)
+            tv_select_fold.text = folderBean?.name
+            folderDataList.forEach {
+                if (it.name == folderBean?.name) {
+                    it.check = true
+                    return
+                }
+            }
+        }
         selectFolderDialog = SelectFolderDialog(this, R.style.WhiteDialog, folderDataList, object : SelectFolderDialog.OnClickListener {
             override fun itemClick(position: Int, type: Int) {
                 selectFolderIndex = position
@@ -188,7 +222,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                 folderDataList[position].check = true
                 selectFolderDialog.rv_dialog_folder.adapter.notifyDataSetChanged()
                 val name = folderDataList[position].name
-                btn_select_fold.text = name
+                tv_select_fold.text = name
                 selectFolderDialog.dismiss()
             }
 
@@ -236,7 +270,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                             folderBean.isLock = false
                             app.folderBeanDao?.insert(folder)
                             selectFolderDialog.rv_dialog_folder.adapter.notifyDataSetChanged()
-                            btn_select_fold.text = folderName
+                            tv_select_fold.text = folderName
                         }
                         cancelButton {
 
@@ -393,7 +427,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             gravity = Gravity.TOP
             setLineSpacing(0f, 1.1f)
             textColor = R.color.colorFont
-            textSize = 16f
+            textSize = 15f
             background = null
         }
     }

@@ -53,7 +53,7 @@
                     android:layout_height="35dp"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="10dp"
-                    android:layout_toLeftOf="@id/ib_edit_submit_or_preview"
+                    android:layout_toStartOf="@id/ib_edit_submit_or_preview"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:padding="8dp"
                     android:scaleType="centerInside"
@@ -71,35 +71,39 @@
         android:paddingStart="15dp">
 
         <TextView
+            android:id="@+id/tv_memo_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:text="今天 21:44"
             android:textColor="@color/colorFont"
-            android:textSize="11sp" />
+            android:textSize="12sp" />
 
         <LinearLayout
             android:id="@+id/ll_select_fold"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_alignParentEnd="true"
-            android:orientation="horizontal">
+            android:background="?android:attr/selectableItemBackground"
+            android:focusable="true"
+            android:orientation="horizontal"
+            android:paddingLeft="7dp"
+            android:paddingRight="7dp">
 
-            <Button
-                android:id="@+id/btn_select_fold"
-                android:layout_width="60dp"
+            <TextView
+                android:id="@+id/tv_select_fold"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
                 android:textAllCaps="false"
                 android:textColor="@color/colorFont"
-                android:textSize="11sp" />
+                android:textSize="12sp" />
 
             <ImageView
                 android:layout_width="12dp"
                 android:layout_height="12dp"
                 android:layout_gravity="center_vertical"
+                android:layout_marginStart="3dp"
                 android:src="@drawable/ic_select" />
         </LinearLayout>
 
