@@ -13,22 +13,30 @@ import android.view.View
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main_content.*
 import kotlinx.android.synthetic.main.activity_main_drawer.*
+import kotlinx.android.synthetic.main.content_main.*
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
 import yy.zpy.cc.greendaolibrary.bean.FolderBeanDao
+import yy.zpy.cc.greendaolibrary.bean.MemoBean
 import yy.zpy.cc.greendaolibrary.bean.MemoBeanDao
 import yy.zpy.cc.memo.App
 import yy.zpy.cc.memo.R
 import yy.zpy.cc.memo.adapter.FolderAdapter
+import yy.zpy.cc.memo.adapter.MemoAdapter
 import yy.zpy.cc.memo.data.Folder
 import yy.zpy.cc.memo.interf.IBaseUI
+import yy.zpy.cc.memo.logcat
 import yy.zpy.cc.memo.util.Constant
 import kotlin.properties.Delegates
 
 
 class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSelectedListener {
-    var drawerToggle by Delegates.notNull<ActionBarDrawerToggle>()
     override fun getLayout() = R.layout.activity_main
+    var drawerToggle by Delegates.notNull<ActionBarDrawerToggle>()
+    var memoAdapter by Delegates.notNull<MemoAdapter>()
+    var memoData = mutableListOf<MemoBean>()
+    var folderData = mutableListOf<Folder>()
+    var folderAdapter by Delegates.notNull<FolderAdapter>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setSupportActionBar(toolbar_main)
@@ -86,39 +94,58 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         drawer_layout.setDrawerListener(drawerToggle)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayUseLogoEnabled(true)
-//        val list_header = layoutInflater.inflate(R.layout.drawer_header, null)
-//        rv_drawer_folder.addHeaderView(list_header)
+        tv_select_folder_name.text = Constant.ALL_MEMO
+        val linearLayoutManager = LinearLayoutManager(this)
+        val dividerItemDecoration = DividerItemDecoration(this, linearLayoutManager.orientation)
+        dividerItemDecoration.setDrawable(resources.getDrawable(R.drawable.divider_item_decoration, theme))
+        rv_drawer_folder.layoutManager = linearLayoutManager
+        folderAdapter = FolderAdapter(folderData, false) { position, _ ->
+            drawer_layout.closeDrawers()
+            val name = folderData[position].name
+            tv_select_folder_name.text = name
+            showMemoList(name)
+        }
+        rv_drawer_folder.addItemDecoration(dividerItemDecoration)
+        rv_drawer_folder.adapter = folderAdapter
+        memoAdapter = MemoAdapter(memoData) { position, type ->
+
+        }
+        rv_memo_list.layoutManager = LinearLayoutManager(this@MainActivity)
+        rv_memo_list.adapter = memoAdapter
+        rv_memo_list.addItemDecoration(dividerItemDecoration)
     }
 
     override fun show() {
-        var selectFolderName = "全部标签"
-        val selectFolderIndex = app.getSpValue(Constant.SP_SELECT_FOLDER, -1.toLong())
-        if (selectFolderIndex != -1.toLong()) {
-            val list = app.folderBeanDao?.queryBuilder()?.where(FolderBeanDao.Properties.Id.eq(selectFolderIndex))?.list()
-            if (list != null && list.size != 0) {
-                selectFolderName = list[0].name
-            }
-        }
-        tv_select_folder_name.text = selectFolderName
+        showDrawerFolderList()
+        showMemoList(tv_select_folder_name.text.toString())
+    }
+
+    fun showDrawerFolderList() {
         val folders = App.instance.folderBeanDao?.loadAll()
-        val folderData = mutableListOf<Folder>()
+        val data = mutableListOf<Folder>()
         folders?.forEach {
             val folder = Folder()
-            var list = app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.FolderID.eq(it.id))?.list()
-            val size = if (list == null) 0 else list.size
+            val list: MutableList<MemoBean>?
+            if (Constant.ALL_MEMO == it.name) {
+                list = app.memoBeanDao?.loadAll()
+            } else {
+                list = app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.FolderID.eq(it.id))?.list()
+            }
+            val size = list?.size ?: 0
             folder.name = it.name
             folder.count = size
-            folderData.add(folder)
+            data.add(folder)
         }
-        val linearLayoutManager = LinearLayoutManager(this)
-        rv_drawer_folder.layoutManager = linearLayoutManager
-        rv_drawer_folder.adapter = FolderAdapter(folderData, false) { position, _ ->
-            drawer_layout.closeDrawers()
-            tv_select_folder_name.text = folderData[position].name
-        }
-        val dividerItemDecoration = DividerItemDecoration(this, linearLayoutManager.orientation)
-        dividerItemDecoration.setDrawable(resources.getDrawable(R.drawable.divider_item_decoration, theme))
-        rv_drawer_folder.addItemDecoration(dividerItemDecoration)
+        folderData.clear()
+        folderData.addAll(data)
+        logcat(folderData.size)
+        folderAdapter.notifyDataSetChanged()
+    }
+
+    fun showMemoList(folderName: String) {
+        memoData.clear()
+        memoData.addAll(getMemoData(folderName))
+        memoAdapter.notifyDataSetChanged()
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -138,5 +165,24 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         } else {
             super.onBackPressed()
         }
+    }
+
+    fun getMemoData(folderName: String): MutableList<MemoBean> {
+        val data = mutableListOf<MemoBean>()
+        if (Constant.ALL_MEMO == folderName) {
+            val allMemo = app.memoBeanDao?.loadAll()
+            if (allMemo != null) {
+                data.addAll(allMemo)
+            }
+        } else {
+            val folder = app.folderBeanDao?.queryBuilder()?.where(FolderBeanDao.Properties.Name.eq(folderName))?.list()
+            if (folder != null) {
+                val result = app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.FolderID.eq(folder[0].id))?.list()
+                if (result != null) {
+                    data.addAll(result)
+                }
+            }
+        }
+        return data
     }
 }

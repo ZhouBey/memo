@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="15dp">
+
+    <yy.zpy.cc.memo.widget.CircleViewWithTxt
+        android:id="@+id/cvt_item_header"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true" />
+
+    <TextView
+        android:id="@+id/tv_item_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:text="12:39"
+        android:textColor="@color/colorFont"
+        android:textSize="12sp" />
+
+    <ImageView
+        android:id="@+id/iv_item_picture"
+        android:layout_width="17dp"
+        android:layout_height="17dp"
+        android:layout_alignEnd="@id/tv_item_time"
+        android:layout_below="@id/tv_item_time"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/ic_memo_picture" />
+
+    <TextView
+        android:id="@+id/tv_item_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/tv_item_time"
+        android:layout_marginEnd="15dp"
+        android:layout_marginStart="15dp"
+        android:layout_toEndOf="@id/cvt_item_header"
+        android:layout_toStartOf="@id/tv_item_time"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textColor="@color/colorFontDark"
+        android:textSize="15sp"
+        android:text="多少了放假啦受打击了"/>
+
+    <TextView
+        android:id="@+id/tv_item_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/iv_item_picture"
+        android:layout_alignStart="@id/tv_item_title"
+        android:layout_marginEnd="15dp"
+        android:layout_toEndOf="@id/iv_item_picture"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textColor="@color/colorFont"
+        android:textSize="15sp"
+        android:text="第三方拉伸乐山大佛建安街 了就是发动机奥拉夫"/>
+</RelativeLayout>

@@ -61,7 +61,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     var decorView: View? = null
     var selectFolderDialog by Delegates.notNull<SelectFolderDialog>()
     var isFinish = false
-    var selectFolderIndex = 0
+    var selectFolderID = 0L
     val folderDataList = mutableListOf<Folder>()
     var memoBean: MemoBean? = null
     var memoBeanID: Long? = -1L
@@ -153,7 +153,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             val memoBean = MemoBean()
             memoBean.content = content
             memoBean.greenDaoType = GreenDaoType.TEXT
-            memoBean.folderID = folderDataList[selectFolderIndex].id
+            memoBean.folderID = selectFolderID
             memoBeanID = app.memoBeanDao?.insert(memoBean)
         } else {
             val memoBean = app.memoBeanDao?.load(memoBeanID)
@@ -215,7 +215,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         }
         selectFolderDialog = SelectFolderDialog(this, R.style.WhiteDialog, folderDataList, object : SelectFolderDialog.OnClickListener {
             override fun itemClick(position: Int, type: Int) {
-                selectFolderIndex = position
+                selectFolderID = folderBeanList?.get(position)?.id ?: 0
                 folderDataList.forEach {
                     it.check = false
                 }
@@ -268,9 +268,10 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                             folderBean.greenDaoType = GreenDaoType.TEXT
                             folderBean.name = folderName
                             folderBean.isLock = false
-                            app.folderBeanDao?.insert(folder)
+                            val folderID = app.folderBeanDao?.insert(folder)
                             selectFolderDialog.rv_dialog_folder.adapter.notifyDataSetChanged()
                             tv_select_fold.text = folderName
+                            selectFolderID = folderID ?: 0
                         }
                         cancelButton {
 
@@ -452,5 +453,15 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             }
         }
         return content.toString()
+    }
+
+    override fun finish() {
+        if (memoBeanID == -1L) {
+            val content = generateText()
+            if (!TextUtils.isEmpty(content)) {
+                saveMemo(content)
+            }
+        }
+        super.finish()
     }
 }
