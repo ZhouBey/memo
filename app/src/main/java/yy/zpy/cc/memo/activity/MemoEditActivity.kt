@@ -64,7 +64,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     var selectFolderID = 0L
     val folderDataList = mutableListOf<Folder>()
     var memoBean: MemoBean? = null
-    var memoBeanID: Long? = -1L
+    var memoBeanID = -1L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -154,10 +154,11 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             memoBean.content = content
             memoBean.greenDaoType = GreenDaoType.TEXT
             memoBean.folderID = selectFolderID
-            memoBeanID = app.memoBeanDao?.insert(memoBean)
+            memoBeanID = app.memoBeanDao?.insert(memoBean) ?: 0
         } else {
             val memoBean = app.memoBeanDao?.load(memoBeanID)
             memoBean?.content = content
+            memoBean?.updateTime = System.currentTimeMillis()
             app.memoBeanDao?.update(memoBean)
         }
     }
@@ -191,6 +192,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         val memo = intent?.extras?.get("memo")
         if (memo != null) {
             memoBean = memo as MemoBean
+            memoBeanID = memoBean?.id ?: 0
         }
         val folderBeanList = app.folderBeanDao?.loadAll()
         folderBeanList?.forEach {
@@ -203,19 +205,44 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             folderDataList[0].check = true
             tv_select_fold.text = folderDataList[0].name
             tv_memo_time.text = String.format("今天 %s", DateFormat.format("HH:mm", Calendar.getInstance()).toString())
+            selectFolderID = folderDataList[0].id
         } else {
             val folderBean = app.folderBeanDao?.load(memoBean?.folderID)
             tv_select_fold.text = folderBean?.name
-            folderDataList.forEach {
+            val calendar = Calendar.getInstance()
+            logcat(memoBean)
+            calendar.timeInMillis = folderBean?.createTime ?: System.currentTimeMillis()
+            val dateDesc = getDateDesc(calendar)
+            if (TextUtils.isEmpty(dateDesc)) {
+                tv_memo_time.text = DateFormat.format("MM月dd日 HH:mm", calendar).toString()
+            } else {
+                tv_memo_time.text = String.format("%s%s", dateDesc, DateFormat.format("HH:mm", calendar).toString())
+            }
+            folderDataList.forEach continuing@ {
                 if (it.name == folderBean?.name) {
                     it.check = true
-                    return
+                    return@continuing
                 }
             }
         }
+
+        initSelectFolderDialog()
+        val editFirst = getEditText()
+        editAddTextChangeListener(editFirst)
+        if (memoBean != null) {
+            editFirst.setText(memoBean?.content)
+        }
+        ll_root_memo_content.addView(editFirst)
+    }
+
+    override fun show() {
+
+    }
+
+    fun initSelectFolderDialog() {
         selectFolderDialog = SelectFolderDialog(this, R.style.WhiteDialog, folderDataList, object : SelectFolderDialog.OnClickListener {
             override fun itemClick(position: Int, type: Int) {
-                selectFolderID = folderBeanList?.get(position)?.id ?: 0
+                selectFolderID = folderDataList[position].id ?: 0
                 folderDataList.forEach {
                     it.check = false
                 }
@@ -281,8 +308,10 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             }
 
         })
-        val editFirst = getEditText()
-        editFirst.addTextChangedListener(object : TextWatcher {
+    }
+
+    fun editAddTextChangeListener(editText: EditText) {
+        editText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(editable: Editable?) {
                 val content = editable?.toString()
                 val split = content?.split("\n")
@@ -297,7 +326,6 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                             firstLine.length,
                             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
-
             }
 
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
@@ -307,11 +335,6 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
 
             }
         })
-        ll_root_memo_content.addView(editFirst)
-    }
-
-    override fun show() {
-
     }
 
     private fun hideKeyboard() {
@@ -350,13 +373,6 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             }
             if (data != null) {
                 val resultUri = UCrop.getOutput(data)
-//                resultUri?.run {
-//                    val imageID = resultUri.path.substring(resultUri.path.lastIndexOf("/") + 1)
-//                    val imageBean = ImageBean()
-//                    imageBean.greenDaoType = GreenDaoType.TEXT
-//                    imageBean.imageID = imageID
-//                    imageBean.path = resultUri.path
-//                }
                 val imageView = getImageView()
                 val path = resultUri?.path
                 val imageID = path?.substring(path.lastIndexOf("/") + 1, path.length - 4)
@@ -464,4 +480,25 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         }
         super.finish()
     }
+}
+
+fun getDateDesc(calendar: Calendar): String {
+    val nowCal = Calendar.getInstance()
+    if (nowCal.timeInMillis < calendar.timeInMillis) {
+        return ""
+    }
+    if (nowCal[Calendar.YEAR] != calendar[Calendar.YEAR]) {
+        return ""
+    }
+    val dayDiff = nowCal[Calendar.DAY_OF_YEAR] - calendar[Calendar.DAY_OF_YEAR]
+    if (dayDiff == 2) {
+        return "前天"
+    }
+    if (dayDiff == 1) {
+        return "昨天"
+    }
+    if (dayDiff == 0) {
+        return "今天"
+    }
+    return ""
 }

@@ -17,7 +17,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:text="12:39"
         android:textColor="@color/colorFont"
         android:textSize="12sp" />
 
@@ -42,8 +41,7 @@
         android:ellipsize="end"
         android:singleLine="true"
         android:textColor="@color/colorFontDark"
-        android:textSize="15sp"
-        android:text="多少了放假啦受打击了"/>
+        android:textSize="15sp"/>
 
     <TextView
         android:id="@+id/tv_item_content"
@@ -56,6 +54,5 @@
         android:ellipsize="end"
         android:singleLine="true"
         android:textColor="@color/colorFont"
-        android:textSize="15sp"
-        android:text="第三方拉伸乐山大佛建安街 了就是发动机奥拉夫"/>
+        android:textSize="15sp"/>
 </RelativeLayout>

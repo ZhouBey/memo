@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import kotlinx.android.synthetic.main.layout_memo_list_item.view.*
 import yy.zpy.cc.greendaolibrary.bean.MemoBean
 import yy.zpy.cc.memo.R
+import yy.zpy.cc.memo.activity.getDateDesc
 import java.util.*
 
 /**
@@ -39,7 +40,12 @@ class MemoAdapter(val data: List<MemoBean>, var block: (position: Int, type: Int
             cvt_item_header.invalidate()
             val time = Calendar.getInstance()
             time.timeInMillis = item.createTime
-            tv_item_time.text = DateFormat.format("HH:mm", time).toString()
+            val dateDesc = getDateDesc(time)
+            if (TextUtils.isEmpty(dateDesc)) {
+                tv_item_time.text = DateFormat.format("MM月dd日 HH:mm", time).toString()
+            } else {
+                tv_item_time.text = String.format("%s%s", dateDesc, DateFormat.format("HH:mm", time).toString())
+            }
             if (content.contains("<img id=")) {
                 iv_item_picture.visibility = View.VISIBLE
             } else {

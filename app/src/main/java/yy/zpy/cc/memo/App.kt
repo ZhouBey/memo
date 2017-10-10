@@ -15,6 +15,7 @@ import yy.zpy.cc.greendaolibrary.bean.FolderBeanDao
 import yy.zpy.cc.greendaolibrary.bean.ImageBeanDao
 import yy.zpy.cc.greendaolibrary.bean.MemoBeanDao
 import yy.zpy.cc.greendaolibrary.helper.GreenDaoOpenHelper
+import java.util.*
 import kotlin.properties.Delegates
 
 /**
@@ -98,6 +99,7 @@ fun generateTag(): String {
     tag = String.format(tag, callerClazzName, caller.methodName, caller.lineNumber)
     return tag
 }
+
 fun ViewGroup.inflate(layoutRes: Int): View {
     return LayoutInflater.from(context).inflate(layoutRes, this, false)
 }

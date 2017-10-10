@@ -1,7 +1,8 @@
 package yy.zpy.cc.memo
 
-import org.junit.Assert.assertEquals
+import android.text.format.DateFormat
 import org.junit.Test
+import java.util.*
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -11,9 +12,6 @@ import org.junit.Test
 class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
-        val a = "file:///storage/emulated/0/MemoCropPictures/1507610906725.png"
-        val substring = a.substring(a.lastIndexOf("/") + 1, a.length - 4)
-        println(substring)
+        println(DateFormat.format("MM月dd日 HH:mm", Calendar.getInstance()).toString())
     }
 }

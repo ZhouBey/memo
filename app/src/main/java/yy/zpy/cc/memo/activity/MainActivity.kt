@@ -25,7 +25,6 @@ import yy.zpy.cc.memo.adapter.FolderAdapter
 import yy.zpy.cc.memo.adapter.MemoAdapter
 import yy.zpy.cc.memo.data.Folder
 import yy.zpy.cc.memo.interf.IBaseUI
-import yy.zpy.cc.memo.logcat
 import yy.zpy.cc.memo.util.Constant
 import kotlin.properties.Delegates
 
@@ -67,7 +66,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
 //        fab.rippleColor = Color.parseColor("#ff00ff")
         fab.setOnClickListener {
             startActivity<MemoEditActivity>()
-            overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_no);
+            overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_no)
         }
     }
 
@@ -108,7 +107,10 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         rv_drawer_folder.addItemDecoration(dividerItemDecoration)
         rv_drawer_folder.adapter = folderAdapter
         memoAdapter = MemoAdapter(memoData) { position, type ->
-
+            startActivity<MemoEditActivity>(
+                    "memo" to memoData[position]
+            )
+            overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_no)
         }
         rv_memo_list.layoutManager = LinearLayoutManager(this@MainActivity)
         rv_memo_list.adapter = memoAdapter
@@ -138,7 +140,6 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         }
         folderData.clear()
         folderData.addAll(data)
-        logcat(folderData.size)
         folderAdapter.notifyDataSetChanged()
     }
 

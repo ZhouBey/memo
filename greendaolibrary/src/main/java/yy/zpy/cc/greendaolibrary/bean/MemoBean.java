@@ -6,6 +6,8 @@ import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Index;
 
+import java.io.Serializable;
+
 import yy.zpy.cc.greendaolibrary.helper.GreenDaoTypeConverter;
 
 /**
@@ -16,7 +18,7 @@ import yy.zpy.cc.greendaolibrary.helper.GreenDaoTypeConverter;
 @Entity(indexes = {
         @Index(value = "id,createTime ASC", unique = true)
 })
-public class MemoBean {
+public class MemoBean implements Serializable {
     static final long serialVersionUID = 42L;
     @Id
     private Long id;
