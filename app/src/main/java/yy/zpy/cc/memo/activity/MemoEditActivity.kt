@@ -61,7 +61,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     var decorView: View? = null
     var selectFolderDialog by Delegates.notNull<SelectFolderDialog>()
     var isFinish = false
-    var selectFolderID = 0L
+    var selectFolderID = 1L
     val folderDataList = mutableListOf<Folder>()
     var memoBean: MemoBean? = null
     var memoBeanID = -1L
@@ -126,9 +126,6 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             } else {
                 finishStatus()
                 hideKeyboard()
-                if (TextUtils.isEmpty(memoContent)) {
-                    return@setOnClickListener
-                }
                 saveMemo(memoContent)
             }
         }
@@ -149,16 +146,20 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     }
 
     fun saveMemo(content: String) {
+        if (TextUtils.isEmpty(content)) {
+            return
+        }
         if (memoBeanID == -1L) {
             val memoBean = MemoBean()
             memoBean.content = content
             memoBean.greenDaoType = GreenDaoType.TEXT
             memoBean.folderID = selectFolderID
-            memoBeanID = app.memoBeanDao?.insert(memoBean) ?: 0
+            memoBeanID = app.memoBeanDao?.insert(memoBean) ?: -1L
         } else {
             val memoBean = app.memoBeanDao?.load(memoBeanID)
             memoBean?.content = content
             memoBean?.updateTime = System.currentTimeMillis()
+            memoBean?.folderID = selectFolderID
             app.memoBeanDao?.update(memoBean)
         }
     }
@@ -179,10 +180,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                         keyboardShowChangeListener.keyboardShow()
                     } else if (lastVisibleDecorViewHeight + MIN_KEYBOARD_HEIGHT_PX < visibleDecorViewHeight) {
                         keyboardShowChangeListener.keyboardHidden()
-                        val content = generateText()
-                        if (!TextUtils.isEmpty(content)) {
-                            saveMemo(content)
-                        }
+                        saveMemo(generateText())
                     }
                 }
                 lastVisibleDecorViewHeight = visibleDecorViewHeight
@@ -192,7 +190,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         val memo = intent?.extras?.get("memo")
         if (memo != null) {
             memoBean = memo as MemoBean
-            memoBeanID = memoBean?.id ?: 0
+            memoBeanID = memoBean?.id ?: -1L
         }
         val folderBeanList = app.folderBeanDao?.loadAll()
         folderBeanList?.forEach {
@@ -210,7 +208,6 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             val folderBean = app.folderBeanDao?.load(memoBean?.folderID)
             tv_select_fold.text = folderBean?.name
             val calendar = Calendar.getInstance()
-            logcat(memoBean)
             calendar.timeInMillis = folderBean?.createTime ?: System.currentTimeMillis()
             val dateDesc = getDateDesc(calendar)
             if (TextUtils.isEmpty(dateDesc)) {
@@ -242,7 +239,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     fun initSelectFolderDialog() {
         selectFolderDialog = SelectFolderDialog(this, R.style.WhiteDialog, folderDataList, object : SelectFolderDialog.OnClickListener {
             override fun itemClick(position: Int, type: Int) {
-                selectFolderID = folderDataList[position].id ?: 0
+                selectFolderID = folderDataList[position].id ?: 1L
                 folderDataList.forEach {
                     it.check = false
                 }
@@ -251,6 +248,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                 val name = folderDataList[position].name
                 tv_select_fold.text = name
                 selectFolderDialog.dismiss()
+                saveMemo(generateText())
             }
 
             override fun newFolderClick() {
@@ -298,7 +296,8 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                             val folderID = app.folderBeanDao?.insert(folder)
                             selectFolderDialog.rv_dialog_folder.adapter.notifyDataSetChanged()
                             tv_select_fold.text = folderName
-                            selectFolderID = folderID ?: 0
+                            selectFolderID = folderID ?: 1L
+                            saveMemo(generateText())
                         }
                         cancelButton {
 
@@ -473,10 +472,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
 
     override fun finish() {
         if (memoBeanID == -1L) {
-            val content = generateText()
-            if (!TextUtils.isEmpty(content)) {
-                saveMemo(content)
-            }
+            saveMemo(generateText())
         }
         super.finish()
     }
