@@ -24,6 +24,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.yalantis.ucrop.UCrop
 import com.zhihu.matisse.Matisse
@@ -166,7 +167,6 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
 
     override fun initView() {
         setSupportActionBar(toolbar_edit_memo)
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
         decorView = window.decorView
         globalListener = object : ViewTreeObserver.OnGlobalLayoutListener {
             private val windowVisibleDisplayFrame = Rect()
@@ -200,11 +200,14 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             folderDataList.add(folder)
         }
         if (memoBean == null) {
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
             folderDataList[0].check = true
             tv_select_fold.text = folderDataList[0].name
             tv_memo_time.text = String.format("今天 %s", DateFormat.format("HH:mm", Calendar.getInstance()).toString())
             selectFolderID = folderDataList[0].id
         } else {
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
+            finishStatus()
             val folderBean = app.folderBeanDao?.load(memoBean?.folderID)
             tv_select_fold.text = folderBean?.name
             val calendar = Calendar.getInstance()
@@ -222,8 +225,8 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                 }
             }
         }
-
         initSelectFolderDialog()
+
         val editFirst = getEditText()
         editAddTextChangeListener(editFirst)
         if (memoBean != null) {
@@ -309,8 +312,8 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         })
     }
 
-    fun editAddTextChangeListener(editText: EditText) {
-        editText.addTextChangedListener(object : TextWatcher {
+    fun editAddTextChangeListener(textView: TextView) {
+        textView.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(editable: Editable?) {
                 val content = editable?.toString()
                 val split = content?.split("\n")
@@ -445,6 +448,15 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             textColor = R.color.colorFont
             textSize = 15f
             background = null
+        }
+    }
+
+    fun getTextView(): TextView {
+        return TextView(this@MemoEditActivity).apply {
+            layoutParams = LinearLayout.LayoutParams(matchParent, wrapContent)
+            setLineSpacing(0f, 1.1f)
+            textColor = R.color.colorFont
+            textSize = 15f
         }
     }
 
