@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Rect
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -24,8 +26,10 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
 import com.yalantis.ucrop.UCrop
 import com.zhihu.matisse.Matisse
 import com.zhihu.matisse.MimeType
@@ -40,6 +44,7 @@ import yy.zpy.cc.memo.R
 import yy.zpy.cc.memo.custom.MyGlideEngine
 import yy.zpy.cc.memo.data.Folder
 import yy.zpy.cc.memo.dialog.SelectFolderDialog
+import yy.zpy.cc.memo.getScreenWidth
 import yy.zpy.cc.memo.interf.IBaseUI
 import yy.zpy.cc.memo.interf.IKeyboardShowChangeListener
 import yy.zpy.cc.memo.logcat
@@ -260,19 +265,36 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
 
     fun showMemoInfo(content: String) {
         val contentTagList = cutStringByImgTag(content)
+        var isFirst = true
         contentTagList.forEach {
             if (Pattern.compile(Constant.REGEX_IMAGE_TAG).matcher(it).find()) {
                 val matcher = Pattern.compile(Constant.REGEX_IMAGE_ID_TAG).matcher(it)
                 while (matcher.find()) {
                     val imageView = getImageView()
                     val imageID = matcher.group(3)
-                    logcat("imageID=" + imageID)
                     imageView.setTag(R.id.tag_image_view_uri, imageID)
-                    Glide.with(this@MemoEditActivity).load(File(Environment.getExternalStorageDirectory().toString() + "/" + Constant.MEMO_PICTURES + "/" + imageID + ".png")).into(imageView)
+                    Glide.with(this@MemoEditActivity).load(File(Environment.getExternalStorageDirectory().toString() + "/" + Constant.MEMO_PICTURES + "/" + imageID + ".png")).apply(
+                            RequestOptions().error(R.drawable.img_error)
+                    ).into(object : SimpleTarget<Drawable>() {
+                        override fun onResourceReady(resource: Drawable?, transition: Transition<in Drawable>?) {
+                            adjustImageView(imageView, resource)
+                        }
+
+                        override fun onLoadFailed(errorDrawable: Drawable?) {
+                            super.onLoadFailed(errorDrawable)
+                            imageView.layoutParams.width = LinearLayout.LayoutParams.WRAP_CONTENT
+                            imageView.setImageDrawable(errorDrawable)
+                        }
+                    })
                     ll_root_memo_content.addView(imageView)
+                    isFirst = false
                 }
             } else {
                 val editText = getEditText()
+                if (isFirst) {
+                    editAddTextChangeListener(editText)
+                    isFirst = false
+                }
                 editText.setText(it)
                 editText.isCursorVisible = false
                 ll_root_memo_content.addView(editText)
@@ -372,8 +394,8 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         })
     }
 
-    fun editAddTextChangeListener(textView: TextView) {
-        textView.addTextChangedListener(object : TextWatcher {
+    fun editAddTextChangeListener(editText: EditText) {
+        editText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(editable: Editable?) {
                 val content = editable?.toString()
                 val split = content?.split("\n")
@@ -439,7 +461,13 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                 val path = resultUri?.path
                 val imageID = path?.substring(path.lastIndexOf("/") + 1, path.length - 4)
                 imageView.setTag(R.id.tag_image_view_uri, imageID)
-                Glide.with(this@MemoEditActivity).load(resultUri).into(imageView)
+                Glide.with(this@MemoEditActivity).load(resultUri).apply(
+                        RequestOptions().error(R.drawable.img_error)
+                ).into(object : SimpleTarget<Drawable>() {
+                    override fun onResourceReady(resource: Drawable?, transition: Transition<in Drawable>?) {
+                        adjustImageView(imageView, resource)
+                    }
+                })
                 ll_root_memo_content.addView(imageView)
                 val editText = getEditText()
                 ll_root_memo_content.addView(editText)
@@ -450,6 +478,24 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                 logcat("data is null")
             }
         }
+    }
+
+    fun adjustImageView(imageView: ImageView, resource: Drawable?) {
+        val width = getScreenWidth(this@MemoEditActivity)
+        var height: Int by Delegates.notNull<Int>()
+        val bitmapDrawable = resource as BitmapDrawable
+        val bitmap = bitmapDrawable.bitmap
+        var scale by Delegates.notNull<Float>()
+        if (bitmap.width >= width) {
+            scale = bitmap.width.toFloat() / width.toFloat()
+            height = (bitmap.height / scale).toInt()
+        } else {
+            scale = width.toFloat() / bitmap.width.toFloat()
+            logcat(scale.toString())
+            height = (bitmap.height * scale).toInt()
+        }
+        imageView.layoutParams.height = height
+        imageView.setImageDrawable(resource)
     }
 
     @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -517,8 +563,10 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
 
     fun getImageView(): ImageView {
         return ImageView(this@MemoEditActivity).apply {
-            layoutParams = LinearLayout.LayoutParams(matchParent, wrapContent)
+            val lp = LinearLayout.LayoutParams(matchParent, wrapContent) as LinearLayout.LayoutParams
             scaleType = ImageView.ScaleType.FIT_XY
+            lp.topMargin = dip(20)
+            layoutParams = lp
         }
     }
 
@@ -541,6 +589,14 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         saveMemo(generateText())
         super.finish()
         overridePendingTransition(R.anim.anim_slide_no, R.anim.anim_slide_out_right)
+    }
+    fun removeLastEmptyEditText(){
+        val view = ll_root_memo_content.getChildAt(ll_root_memo_content.childCount - 1)
+        if (view is EditText) {
+            if (TextUtils.isEmpty(view.text)) {
+                ll_root_memo_content.removeViewAt(ll_root_memo_content.childCount - 1)
+            }
+        }
     }
 }
 

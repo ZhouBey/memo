@@ -136,7 +136,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingLeft="15dp"
-            android:paddingRight="15dp" />
+            android:paddingRight="15dp"
+            android:gravity="center_horizontal"/>
     </ScrollView>
 
 

@@ -15,7 +15,6 @@ import yy.zpy.cc.greendaolibrary.bean.FolderBeanDao
 import yy.zpy.cc.greendaolibrary.bean.ImageBeanDao
 import yy.zpy.cc.greendaolibrary.bean.MemoBeanDao
 import yy.zpy.cc.greendaolibrary.helper.GreenDaoOpenHelper
-import java.util.*
 import kotlin.properties.Delegates
 
 /**
@@ -110,3 +109,5 @@ fun <T : RecyclerView.ViewHolder> T.itemClickListen(event: (position: Int, type:
     }
     return this
 }
+
+fun getScreenWidth(context: Context) = context.resources.displayMetrics.widthPixels
