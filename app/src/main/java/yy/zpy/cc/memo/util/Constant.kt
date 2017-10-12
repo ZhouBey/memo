@@ -10,5 +10,8 @@ class Constant {
         val MEMO_CROPPED_IMAGE_NAME = "MemoCropImage"
         val SP_SELECT_FOLDER = "select_folder" //int
         val ALL_MEMO = "全部便签"
+        val REGEX_IMAGE_TAG = "<img\\sid=\"\\d*\"/>"
+        val REGEX_IMAGE_ID_TAG = "(id)=(\"|')(.*?)(\"|')"
+        val MEMO_PICTURES = "MemoCropPictures"
     }
 }

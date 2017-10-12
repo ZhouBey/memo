@@ -9,7 +9,9 @@ import kotlinx.android.synthetic.main.layout_memo_list_item.view.*
 import yy.zpy.cc.greendaolibrary.bean.MemoBean
 import yy.zpy.cc.memo.R
 import yy.zpy.cc.memo.activity.getDateDesc
+import yy.zpy.cc.memo.util.Constant
 import java.util.*
+import java.util.regex.Pattern
 
 /**
  * Created by zpy on 2017/10/10.
@@ -31,10 +33,7 @@ class MemoAdapter(val data: List<MemoBean>, var block: (position: Int, type: Int
             val content = item.content
             val split = content.split("\n")
             val title = split[0]
-            tv_item_title.text = title
-            var body = content.substring(title.length, content.length)
-            body = if (TextUtils.isEmpty(body)) title else body
-            tv_item_content.text = body.trim()
+            tv_item_title.text = title.replace(Constant.REGEX_IMAGE_TAG.toRegex(), "image").trim()
             cvt_item_header.txt = content.substring(0, 1)
             cvt_item_header.color = resources.getColor(R.color.colorPrimary)
             cvt_item_header.invalidate()
@@ -46,11 +45,14 @@ class MemoAdapter(val data: List<MemoBean>, var block: (position: Int, type: Int
             } else {
                 tv_item_time.text = String.format("%s%s", dateDesc, DateFormat.format("HH:mm", time).toString())
             }
-            if (content.contains("<img id=")) {
+            if (Pattern.compile(Constant.REGEX_IMAGE_TAG).matcher(content).find()) {
                 iv_item_picture.visibility = View.VISIBLE
             } else {
                 iv_item_picture.visibility = View.INVISIBLE
             }
+            var body = content.substring(title.length, content.length)
+            body = if (TextUtils.isEmpty(body)) title else body
+            tv_item_content.text = body.replace(Constant.REGEX_IMAGE_TAG.toRegex(), "<image>").trim()
         }
     }
 }

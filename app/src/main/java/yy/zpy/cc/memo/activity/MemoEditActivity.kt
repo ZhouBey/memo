@@ -46,6 +46,7 @@ import yy.zpy.cc.memo.logcat
 import yy.zpy.cc.memo.util.Constant
 import java.io.File
 import java.util.*
+import java.util.regex.Pattern
 import kotlin.properties.Delegates
 
 
@@ -108,7 +109,6 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     override fun viewListener() {
         ib_back.setOnClickListener {
             this@MemoEditActivity.finish()
-            overridePendingTransition(R.anim.anim_slide_no, R.anim.anim_slide_out_right)
         }
         iv_lock_status.setOnClickListener {
             lockStatus = !lockStatus
@@ -134,15 +134,35 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             if (isFinish) {
                 alert("确定要删除这条便签吗？", "删除便签") {
                     okButton {
-                        toast("删除")
+                        app.memoBeanDao?.deleteByKey(memoBeanID)
+                        deletePicture(generateText())
+                        ll_root_memo_content.removeAllViews()
+                        toast("删除成功")
+                        this@MemoEditActivity.finish()
                     }
                     cancelButton {
-                        toast("取消")
+
                     }
                 }.show()
                 return@setOnClickListener
             }
             pickerPictureWithPermissionCheck()
+        }
+    }
+
+    fun deletePicture(content: String) {
+        val contentTagList = cutStringByImgTag(content)
+        contentTagList.forEach {
+            if (Pattern.compile(Constant.REGEX_IMAGE_TAG).matcher(it).find()) {
+                val matcher = Pattern.compile(Constant.REGEX_IMAGE_ID_TAG).matcher(it)
+                while (matcher.find()) {
+                    val imageID = matcher.group(3)
+                    val file = File(Environment.getExternalStorageDirectory().toString() + "/" + Constant.MEMO_PICTURES + "/" + imageID + ".png")
+                    if (file.exists()) {
+                        file.delete()
+                    }
+                }
+            }
         }
     }
 
@@ -180,7 +200,6 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                         keyboardShowChangeListener.keyboardShow()
                     } else if (lastVisibleDecorViewHeight + MIN_KEYBOARD_HEIGHT_PX < visibleDecorViewHeight) {
                         keyboardShowChangeListener.keyboardHidden()
-                        saveMemo(generateText())
                     }
                 }
                 lastVisibleDecorViewHeight = visibleDecorViewHeight
@@ -226,17 +245,60 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             }
         }
         initSelectFolderDialog()
-
         val editFirst = getEditText()
         editAddTextChangeListener(editFirst)
         if (memoBean != null) {
-            editFirst.setText(memoBean?.content)
+            showMemoInfo(memoBean?.content ?: "")
+        } else {
+            ll_root_memo_content.addView(editFirst)
         }
-        ll_root_memo_content.addView(editFirst)
     }
 
     override fun show() {
 
+    }
+
+    fun showMemoInfo(content: String) {
+        val contentTagList = cutStringByImgTag(content)
+        contentTagList.forEach {
+            if (Pattern.compile(Constant.REGEX_IMAGE_TAG).matcher(it).find()) {
+                val matcher = Pattern.compile(Constant.REGEX_IMAGE_ID_TAG).matcher(it)
+                while (matcher.find()) {
+                    val imageView = getImageView()
+                    val imageID = matcher.group(3)
+                    logcat("imageID=" + imageID)
+                    imageView.setTag(R.id.tag_image_view_uri, imageID)
+                    Glide.with(this@MemoEditActivity).load(File(Environment.getExternalStorageDirectory().toString() + "/" + Constant.MEMO_PICTURES + "/" + imageID + ".png")).into(imageView)
+                    ll_root_memo_content.addView(imageView)
+                }
+            } else {
+                val editText = getEditText()
+                editText.setText(it)
+                editText.isCursorVisible = false
+                ll_root_memo_content.addView(editText)
+            }
+        }
+        val editText = getEditText()
+        editText.isCursorVisible = false
+        ll_root_memo_content.addView(editText)
+    }
+
+    fun cutStringByImgTag(content: String): List<String> {
+        val splitTextList = mutableListOf<String>()
+        val pattern = Pattern.compile(Constant.REGEX_IMAGE_TAG)
+        val matcher = pattern.matcher(content)
+        var lastIndex = 0
+        while (matcher.find()) {
+            if (matcher.start() > lastIndex) {
+                splitTextList.add(content.substring(lastIndex, matcher.start()))
+            }
+            splitTextList.add(content.substring(matcher.start(), matcher.end()))
+            lastIndex = matcher.end()
+        }
+        if (lastIndex != content.length) {
+            splitTextList.add(content.substring(lastIndex, content.length))
+        }
+        return splitTextList
     }
 
     fun initSelectFolderDialog() {
@@ -251,7 +313,6 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                 val name = folderDataList[position].name
                 tv_select_fold.text = name
                 selectFolderDialog.dismiss()
-                saveMemo(generateText())
             }
 
             override fun newFolderClick() {
@@ -300,7 +361,6 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                             selectFolderDialog.rv_dialog_folder.adapter.notifyDataSetChanged()
                             tv_select_fold.text = folderName
                             selectFolderID = folderID ?: 1L
-                            saveMemo(generateText())
                         }
                         cancelButton {
 
@@ -352,7 +412,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         if (resultCode == RESULT_OK && requestCode == Constant.REQUEST_CODE_CHOOSE) {
             val obtainResult = Matisse.obtainResult(data)
             val uri = obtainResult[0]
-            val RESULT_CROP_IMAGE_PATH = Environment.getExternalStorageDirectory().toString() + "/MemoCropPictures"
+            val RESULT_CROP_IMAGE_PATH = Environment.getExternalStorageDirectory().toString() + "/" + Constant.MEMO_PICTURES
             val folderFile = File(RESULT_CROP_IMAGE_PATH)
             if (!folderFile.exists()) {
                 folderFile.mkdirs()
@@ -448,15 +508,10 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             textColor = R.color.colorFont
             textSize = 15f
             background = null
-        }
-    }
-
-    fun getTextView(): TextView {
-        return TextView(this@MemoEditActivity).apply {
-            layoutParams = LinearLayout.LayoutParams(matchParent, wrapContent)
-            setLineSpacing(0f, 1.1f)
-            textColor = R.color.colorFont
-            textSize = 15f
+            setOnClickListener {
+                isCursorVisible = true
+                invalidate()
+            }
         }
     }
 
@@ -483,10 +538,9 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     }
 
     override fun finish() {
-        if (memoBeanID == -1L) {
-            saveMemo(generateText())
-        }
+        saveMemo(generateText())
         super.finish()
+        overridePendingTransition(R.anim.anim_slide_no, R.anim.anim_slide_out_right)
     }
 }
 
