@@ -171,7 +171,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
     fun getMemoData(folderName: String): MutableList<MemoBean> {
         val data = mutableListOf<MemoBean>()
         if (Constant.ALL_MEMO == folderName) {
-            val allMemo = app.memoBeanDao?.loadAll()
+            val allMemo = app.memoBeanDao?.queryBuilder()?.orderDesc(MemoBeanDao.Properties.CreateTime)?.list()
             if (allMemo != null) {
                 data.addAll(allMemo)
             }
