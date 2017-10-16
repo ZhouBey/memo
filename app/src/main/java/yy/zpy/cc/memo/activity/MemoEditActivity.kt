@@ -166,7 +166,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     }
 
     fun saveMemo(content: String) {
-        if (TextUtils.isEmpty(content)) {
+        if (TextUtils.isEmpty(content.trim())) {
             return
         }
         if (memoBeanID == -1L) {
@@ -606,7 +606,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         ll_root_memo_content.forEachChild {
             when (it) {
                 is EditText -> {
-                    content.append(it.text.trim())
+                    content.append(it.text)
                 }
                 is ImageView -> {
                     content.append("<img id=\"").append(it.getTag(R.id.tag_image_view_uri)).append("\"/>")
