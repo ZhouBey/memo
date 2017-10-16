@@ -5,6 +5,7 @@ import android.app.ActivityManager
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.StrictMode
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,6 +17,8 @@ import yy.zpy.cc.greendaolibrary.bean.ImageBeanDao
 import yy.zpy.cc.greendaolibrary.bean.MemoBeanDao
 import yy.zpy.cc.greendaolibrary.helper.GreenDaoOpenHelper
 import kotlin.properties.Delegates
+
+
 
 /**
  * Created by zpy on 2017/9/25.
@@ -44,6 +47,8 @@ class App : Application() {
             imageBeanDao = daoSession.imageBeanDao
         }
         sp = getSharedPreferences("memo-data", MODE_PRIVATE)
+        val builder = StrictMode.VmPolicy.Builder()
+        StrictMode.setVmPolicy(builder.build())
     }
 
     private val isMainProcess: Boolean
