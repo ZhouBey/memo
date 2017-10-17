@@ -1,5 +1,9 @@
 package yy.zpy.cc.memo.activity
 
+import android.animation.Animator
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
+import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.design.widget.NavigationView
@@ -15,18 +19,17 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main_content.*
 import kotlinx.android.synthetic.main.activity_main_drawer.*
 import kotlinx.android.synthetic.main.content_main.*
-import org.jetbrains.anko.startActivity
-import org.jetbrains.anko.toast
+import org.jetbrains.anko.*
 import yy.zpy.cc.greendaolibrary.bean.FolderBeanDao
 import yy.zpy.cc.greendaolibrary.bean.MemoBean
 import yy.zpy.cc.greendaolibrary.bean.MemoBeanDao
-import yy.zpy.cc.memo.App
 import yy.zpy.cc.memo.R
 import yy.zpy.cc.memo.adapter.FolderAdapter
 import yy.zpy.cc.memo.adapter.MemoAdapter
 import yy.zpy.cc.memo.data.Folder
 import yy.zpy.cc.memo.data.Memo
 import yy.zpy.cc.memo.interf.IBaseUI
+import yy.zpy.cc.memo.logcat
 import yy.zpy.cc.memo.util.Constant
 import kotlin.properties.Delegates
 
@@ -68,13 +71,41 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
     }
 
     override fun viewListener() {
-//        fab.rippleColor = Color.parseColor("#ff00ff")
         fab.setOnClickListener {
             startActivity<MemoEditActivity>()
             overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_no)
         }
         iv_cancel_memo_operate.setOnClickListener {
             memoBrowseStatus()
+        }
+        tv_memo_move.setOnClickListener {
+
+        }
+        tv_memo_delete.setOnClickListener {
+            alert("确定要删除" + tv_select_folder_name.text + "条便签吗？", "删除") {
+                okButton {
+                    try {
+                        memoData.forEach {
+                            if (it.check) {
+                                val memoBean = app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.Id.eq(it.memoBean.id))?.unique()
+                                memoBean?.deleteTime = System.currentTimeMillis()
+                                app.memoBeanDao?.update(memoBean)
+                            }
+                        }
+                        memoData.clear()
+                        memoData.addAll(getMemoData(folderName))
+                        folderData.clear()
+                        folderData.addAll(getFolderAllData())
+                        folderAdapter.notifyDataSetChanged()
+                        memoBrowseStatus()
+                    } catch (e: Exception) {
+                        logcat(e.toString())
+                    }
+                }
+                cancelButton {
+
+                }
+            }.show()
         }
     }
 
@@ -134,6 +165,13 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         rv_memo_list.layoutManager = LinearLayoutManager(this@MainActivity)
         rv_memo_list.adapter = memoAdapter
         rv_memo_list.addItemDecoration(dividerItemDecoration)
+        fab.rippleColor = Color.parseColor("#E1E1E1")
+        doAsync {
+            Thread.sleep(500)
+            uiThread {
+                showFloatingActionButton()
+            }
+        }
     }
 
     fun memoAdapterNotifyDataSetChanged(position: Int) {
@@ -145,7 +183,11 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                 count++
             }
         }
-        tv_select_folder_name.text = count.toString()
+        if (count != 0) {
+            tv_select_folder_name.text = count.toString()
+        } else {
+            memoBrowseStatus()
+        }
     }
 
     fun memoBrowseStatus() {
@@ -163,7 +205,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         }
         memoAdapter.notifyDataSetChanged()
         tv_select_folder_name.text = folderName
-        fab.visibility = View.VISIBLE
+        showFloatingActionButton()
     }
 
     fun memoOperateStatus() {
@@ -176,7 +218,58 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.colorActionBarSelect)))
         window.statusBarColor = resources.getColor(R.color.colorStatusBarSelect)
         memoAdapter.hasSelect = true
-        fab.visibility = View.GONE
+        hideFloatingActionButton()
+    }
+
+    fun showFloatingActionButton() {
+        val objectAnimatorY = ObjectAnimator.ofFloat(fab, "scaleY", 0f, 0.3f, 0.5f, 0.7f, 1.0f)
+        val objectAnimatorX = ObjectAnimator.ofFloat(fab, "scaleX", 0f, 0.3f, 0.5f, 0.7f, 1.0f)
+        val animatorSet = AnimatorSet()
+        animatorSet.playTogether(objectAnimatorX, objectAnimatorY)
+        animatorSet.duration = 250
+        animatorSet.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationRepeat(animation: Animator?) {
+
+            }
+
+            override fun onAnimationEnd(animation: Animator?) {
+            }
+
+            override fun onAnimationCancel(animation: Animator?) {
+            }
+
+            override fun onAnimationStart(animation: Animator?) {
+                fab.visibility = View.VISIBLE
+            }
+
+        })
+        animatorSet.start()
+    }
+
+    fun hideFloatingActionButton() {
+        val objectAnimatorY = ObjectAnimator.ofFloat(fab, "scaleY", 1f, 0.7f, 0.5f, 0.3f, 0f)
+        val objectAnimatorX = ObjectAnimator.ofFloat(fab, "scaleX", 1f, 0.7f, 0.5f, 0.3f, 0f)
+        val animatorSet = AnimatorSet()
+        animatorSet.playTogether(objectAnimatorX, objectAnimatorY)
+        animatorSet.duration = 250
+        animatorSet.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationRepeat(animation: Animator?) {
+
+            }
+
+            override fun onAnimationEnd(animation: Animator?) {
+                fab.visibility = View.VISIBLE
+            }
+
+            override fun onAnimationCancel(animation: Animator?) {
+            }
+
+            override fun onAnimationStart(animation: Animator?) {
+
+            }
+
+        })
+        animatorSet.start()
     }
 
     override fun show() {
@@ -185,24 +278,28 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
     }
 
     fun showDrawerFolderList() {
-        val folders = App.instance.folderBeanDao?.loadAll()
+        folderData.clear()
+        folderData.addAll(getFolderAllData())
+        folderAdapter.notifyDataSetChanged()
+    }
+
+    fun getFolderAllData(): MutableList<Folder> {
+        val folders = app.folderBeanDao?.loadAll()
         val data = mutableListOf<Folder>()
         folders?.forEach {
             val folder = Folder()
             val list: MutableList<MemoBean>?
             if (Constant.ALL_MEMO == it.name) {
-                list = app.memoBeanDao?.loadAll()
+                list = app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.DeleteTime.eq(0))?.list()
             } else {
-                list = app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.FolderID.eq(it.id))?.list()
+                list = app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.FolderID.eq(it.id))?.where(MemoBeanDao.Properties.DeleteTime.eq(0))?.list()
             }
             val size = list?.size ?: 0
             folder.folderBean.name = it.name
             folder.count = size
             data.add(folder)
         }
-        folderData.clear()
-        folderData.addAll(data)
-        folderAdapter.notifyDataSetChanged()
+        return data
     }
 
     fun showMemoList(folderName: String) {

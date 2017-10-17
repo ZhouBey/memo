@@ -12,6 +12,7 @@ import org.jetbrains.anko.backgroundColor
 import yy.zpy.cc.memo.R
 import yy.zpy.cc.memo.activity.getDateDesc
 import yy.zpy.cc.memo.data.Memo
+import yy.zpy.cc.memo.logcat
 import yy.zpy.cc.memo.util.Constant
 import java.util.*
 import java.util.regex.Pattern
@@ -70,6 +71,11 @@ class MemoAdapter(val data: List<Memo>, var itemClickBlock: (position: Int, type
             var body = content.substring(title.length, content.length)
             body = if (TextUtils.isEmpty(body)) title else body
             tv_item_content.text = body.replace(Constant.REGEX_IMAGE_TAG.toRegex(), "<image>").trim()
+            if (!hasSelect) {
+                val outValue = TypedValue()
+                context.theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
+                itemView.setBackgroundResource(outValue.resourceId)
+            }
             if (item.check) {
                 itemView.backgroundColor = resources.getColor(R.color.colorMemoSelected)
                 cvt_item_header.setBitmap(BitmapFactory.decodeResource(resources, R.drawable.ic_memo_checked))
