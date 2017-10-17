@@ -1,5 +1,6 @@
 package yy.zpy.cc.memo.activity
 
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
@@ -36,7 +37,6 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
     var memoData = mutableListOf<MemoBean>()
     var folderData = mutableListOf<Folder>()
     var folderAdapter by Delegates.notNull<FolderAdapter>()
-
     var hasBrowseStatus = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -116,6 +116,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                     overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_no)
                 },
                 { position, _ ->
+
                     memoOperateStatus()
                 })
         rv_memo_list.layoutManager = LinearLayoutManager(this@MainActivity)
@@ -130,6 +131,8 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         ll_memo_operate.visibility = View.GONE
         iv_cancel_memo_operate.visibility = View.GONE
         drawerToggle.isDrawerIndicatorEnabled = true
+        supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.colorPrimary)))
+        window.statusBarColor = resources.getColor(R.color.colorPrimaryDark)
     }
 
     fun memoOperateStatus() {
@@ -139,6 +142,8 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         ll_memo_operate.visibility = View.VISIBLE
         iv_cancel_memo_operate.visibility = View.VISIBLE
         drawerToggle.isDrawerIndicatorEnabled = false
+        supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.colorActionBarSelect)))
+        window.statusBarColor = resources.getColor(R.color.colorStatusBarSelect)
     }
 
     override fun show() {

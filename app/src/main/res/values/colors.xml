@@ -7,4 +7,6 @@
     <color name="colorThinGray">#F3F3F3</color>
     <color name="colorFont">#8998a9</color>
     <color name="colorFontDark">#3a3f45</color>
+    <color name="colorStatusBarSelect">#9E9E9E</color>
+    <color name="colorActionBarSelect">#BDBDBD</color>
 </resources>
