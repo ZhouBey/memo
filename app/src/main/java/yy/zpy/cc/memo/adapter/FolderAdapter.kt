@@ -27,7 +27,7 @@ class FolderAdapter(var data: List<Folder>, var isSelect: Boolean, var block: (p
     inner class ViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
         fun bind(position: Int) = with(itemView) {
             val item = data[position]
-            val name = item.name
+            val name = item.folderBean.name
             val isCheck = item.check
             tv_select_folder_name.text = name
             iv_folder_icon.imageResource = (if (position == 0) R.drawable.ic_all_folder else R.drawable.ic_single_folder)

@@ -213,16 +213,18 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         val folderBeanList = app.folderBeanDao?.loadAll()
         folderBeanList?.forEach {
             val folder = Folder()
-            folder.name = it.name
-            folder.id = it.id
+            logcat(it.name)
+            folder.folderBean.name = it.name
+            folder.folderBean.id = it.id
             folderDataList.add(folder)
         }
         if (memoBean == null) {
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
             folderDataList[0].check = true
-            tv_select_fold.text = folderDataList[0].name
+            tv_select_fold.text = folderDataList[0].folderBean.name
+            logcat("name=" + folderDataList[0].folderBean.name)
             tv_memo_time.text = String.format("今天 %s", DateFormat.format("HH:mm", Calendar.getInstance()).toString())
-            selectFolderID = folderDataList[0].id
+            selectFolderID = folderDataList[0].folderBean.id
         } else {
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
             finishStatus()
@@ -237,7 +239,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                 tv_memo_time.text = String.format("%s%s", dateDesc, DateFormat.format("HH:mm", calendar).toString())
             }
             folderDataList.forEach continuing@ {
-                if (it.name == folderBean?.name) {
+                if (it.folderBean.name == folderBean?.name) {
                     it.check = true
                     return@continuing
                 }
@@ -325,13 +327,13 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     fun initSelectFolderDialog() {
         selectFolderDialog = SelectFolderDialog(this, R.style.WhiteDialog, folderDataList, object : SelectFolderDialog.OnClickListener {
             override fun itemClick(position: Int, type: Int) {
-                selectFolderID = folderDataList[position].id ?: 1L
+                selectFolderID = folderDataList[position].folderBean.id
                 folderDataList.forEach {
                     it.check = false
                 }
                 folderDataList[position].check = true
                 selectFolderDialog.rv_dialog_folder.adapter.notifyDataSetChanged()
-                val name = folderDataList[position].name
+                val name = folderDataList[position].folderBean.name
                 tv_select_fold.text = name
                 selectFolderDialog.dismiss()
             }
@@ -370,7 +372,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                                 it.check = false
                             }
                             val folder = Folder()
-                            folder.name = folderName
+                            folder.folderBean.name = folderName
                             folder.check = true
                             folderDataList.add(folder)
                             val folderBean = FolderBean()
@@ -378,7 +380,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                             folderBean.greenDaoType = GreenDaoType.TEXT
                             folderBean.name = folderName
                             folderBean.isLock = false
-                            val folderID = app.folderBeanDao?.insert(folder)
+                            val folderID = app.folderBeanDao?.insert(folder.folderBean)
                             selectFolderDialog.rv_dialog_folder.adapter.notifyDataSetChanged()
                             tv_select_fold.text = folderName
                             selectFolderID = folderID ?: 1L

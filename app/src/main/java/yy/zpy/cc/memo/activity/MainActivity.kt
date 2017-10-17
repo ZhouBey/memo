@@ -25,6 +25,7 @@ import yy.zpy.cc.memo.R
 import yy.zpy.cc.memo.adapter.FolderAdapter
 import yy.zpy.cc.memo.adapter.MemoAdapter
 import yy.zpy.cc.memo.data.Folder
+import yy.zpy.cc.memo.data.Memo
 import yy.zpy.cc.memo.interf.IBaseUI
 import yy.zpy.cc.memo.util.Constant
 import kotlin.properties.Delegates
@@ -34,10 +35,11 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
     override fun getLayout() = R.layout.activity_main
     var drawerToggle by Delegates.notNull<ActionBarDrawerToggle>()
     var memoAdapter by Delegates.notNull<MemoAdapter>()
-    var memoData = mutableListOf<MemoBean>()
+    var memoData = mutableListOf<Memo>()
     var folderData = mutableListOf<Folder>()
     var folderAdapter by Delegates.notNull<FolderAdapter>()
     var hasBrowseStatus = true
+    var folderName = Constant.ALL_MEMO
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,6 +73,9 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
             startActivity<MemoEditActivity>()
             overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_no)
         }
+        iv_cancel_memo_operate.setOnClickListener {
+            memoBrowseStatus()
+        }
     }
 
     override fun initView() {
@@ -95,33 +100,52 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         }
         drawer_layout.setDrawerListener(drawerToggle)
         drawerToggle.isDrawerIndicatorEnabled = true
-        tv_select_folder_name.text = Constant.ALL_MEMO
+        tv_select_folder_name.text = folderName
         val linearLayoutManager = LinearLayoutManager(this)
         val dividerItemDecoration = DividerItemDecoration(this, linearLayoutManager.orientation)
         dividerItemDecoration.setDrawable(resources.getDrawable(R.drawable.divider_item_decoration, theme))
         rv_drawer_folder.layoutManager = linearLayoutManager
         folderAdapter = FolderAdapter(folderData, false) { position, _ ->
             drawer_layout.closeDrawers()
-            val name = folderData[position].name
-            tv_select_folder_name.text = name
+            val name = folderData[position].folderBean.name
+            folderName = name
+            tv_select_folder_name.text = folderName
             showMemoList(name)
         }
         rv_drawer_folder.addItemDecoration(dividerItemDecoration)
         rv_drawer_folder.adapter = folderAdapter
         memoAdapter = MemoAdapter(memoData,
                 { position, _ ->
-                    startActivity<MemoEditActivity>(
-                            "memo" to memoData[position]
-                    )
-                    overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_no)
+                    if (hasBrowseStatus) {
+                        startActivity<MemoEditActivity>(
+                                "memo" to (memoData[position].memoBean)
+                        )
+                        overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_no)
+                    } else {
+                        memoAdapterNotifyDataSetChanged(position)
+                    }
                 },
                 { position, _ ->
-
-                    memoOperateStatus()
+                    if (hasBrowseStatus) {
+                        memoOperateStatus()
+                    }
+                    memoAdapterNotifyDataSetChanged(position)
                 })
         rv_memo_list.layoutManager = LinearLayoutManager(this@MainActivity)
         rv_memo_list.adapter = memoAdapter
         rv_memo_list.addItemDecoration(dividerItemDecoration)
+    }
+
+    fun memoAdapterNotifyDataSetChanged(position: Int) {
+        memoData[position].check = !memoData[position].check
+        memoAdapter.notifyDataSetChanged()
+        var count = 0
+        memoData.forEach {
+            if (it.check) {
+                count++
+            }
+        }
+        tv_select_folder_name.text = count.toString()
     }
 
     fun memoBrowseStatus() {
@@ -133,6 +157,13 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         drawerToggle.isDrawerIndicatorEnabled = true
         supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.colorPrimary)))
         window.statusBarColor = resources.getColor(R.color.colorPrimaryDark)
+        memoAdapter.hasSelect = false
+        memoData.forEach {
+            it.check = false
+        }
+        memoAdapter.notifyDataSetChanged()
+        tv_select_folder_name.text = folderName
+        fab.visibility = View.VISIBLE
     }
 
     fun memoOperateStatus() {
@@ -144,6 +175,8 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         drawerToggle.isDrawerIndicatorEnabled = false
         supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.colorActionBarSelect)))
         window.statusBarColor = resources.getColor(R.color.colorStatusBarSelect)
+        memoAdapter.hasSelect = true
+        fab.visibility = View.GONE
     }
 
     override fun show() {
@@ -163,7 +196,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                 list = app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.FolderID.eq(it.id))?.list()
             }
             val size = list?.size ?: 0
-            folder.name = it.name
+            folder.folderBean.name = it.name
             folder.count = size
             data.add(folder)
         }
@@ -201,7 +234,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         super.onBackPressed()
     }
 
-    fun getMemoData(folderName: String): MutableList<MemoBean> {
+    fun getMemoData(folderName: String): MutableList<Memo> {
         val data = mutableListOf<MemoBean>()
         if (Constant.ALL_MEMO == folderName) {
             val allMemo = app.memoBeanDao?.queryBuilder()
@@ -223,6 +256,12 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                 }
             }
         }
-        return data
+        val result = mutableListOf<Memo>()
+        data.forEach {
+            val memo = Memo()
+            memo.memoBean = it
+            result.add(memo)
+        }
+        return result
     }
 }

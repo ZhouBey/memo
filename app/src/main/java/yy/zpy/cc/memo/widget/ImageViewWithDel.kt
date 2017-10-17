@@ -32,7 +32,6 @@ class ImageViewWithDel : ImageView {
         super.onDraw(canvas)
         if (isSelect) {
             canvas?.drawBitmap(bitmap, width.minus(bitmap.width.toFloat().plus(dip(10).toFloat())), dip(10).toFloat(), null)
-//            drawable?.setColorFilter(Color.parseColor("FF666666"), PorterDuff.Mode.MULTIPLY)
             drawable?.setColorFilter(Color.DKGRAY, PorterDuff.Mode.MULTIPLY)
         } else {
             drawable?.clearColorFilter()

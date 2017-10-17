@@ -5,7 +5,7 @@
     android:background="?android:attr/selectableItemBackground"
     android:padding="15dp">
 
-    <yy.zpy.cc.memo.widget.CircleViewWithTxt
+    <yy.zpy.cc.memo.widget.CircleView
         android:id="@+id/cvt_item_header"
         android:layout_width="40dp"
         android:layout_height="40dp"
