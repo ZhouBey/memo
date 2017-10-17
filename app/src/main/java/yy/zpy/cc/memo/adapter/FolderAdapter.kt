@@ -58,3 +58,11 @@ fun <T : RecyclerView.ViewHolder> T.itemClickListen(event: (position: Int, type:
     }
     return this
 }
+
+fun <T : RecyclerView.ViewHolder> T.itemLongClickListener(event: (position: Int, type: Int) -> Unit): T {
+    itemView.setOnLongClickListener {
+        event.invoke(adapterPosition, itemViewType)
+        true
+    }
+    return this
+}

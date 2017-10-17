@@ -36,6 +36,9 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
     var memoData = mutableListOf<MemoBean>()
     var folderData = mutableListOf<Folder>()
     var folderAdapter by Delegates.notNull<FolderAdapter>()
+
+    var hasBrowseStatus = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setSupportActionBar(toolbar_main)
@@ -45,7 +48,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
-        return true
+        return hasBrowseStatus
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -91,8 +94,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
             }
         }
         drawer_layout.setDrawerListener(drawerToggle)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setDisplayUseLogoEnabled(true)
+        drawerToggle.isDrawerIndicatorEnabled = true
         tv_select_folder_name.text = Constant.ALL_MEMO
         val linearLayoutManager = LinearLayoutManager(this)
         val dividerItemDecoration = DividerItemDecoration(this, linearLayoutManager.orientation)
@@ -106,15 +108,37 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         }
         rv_drawer_folder.addItemDecoration(dividerItemDecoration)
         rv_drawer_folder.adapter = folderAdapter
-        memoAdapter = MemoAdapter(memoData) { position, type ->
-            startActivity<MemoEditActivity>(
-                    "memo" to memoData[position]
-            )
-            overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_no)
-        }
+        memoAdapter = MemoAdapter(memoData,
+                { position, _ ->
+                    startActivity<MemoEditActivity>(
+                            "memo" to memoData[position]
+                    )
+                    overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_no)
+                },
+                { position, _ ->
+                    memoOperateStatus()
+                })
         rv_memo_list.layoutManager = LinearLayoutManager(this@MainActivity)
         rv_memo_list.adapter = memoAdapter
         rv_memo_list.addItemDecoration(dividerItemDecoration)
+    }
+
+    fun memoBrowseStatus() {
+        hasBrowseStatus = true
+        invalidateOptionsMenu()
+        iv_memo_search.visibility = View.VISIBLE
+        ll_memo_operate.visibility = View.GONE
+        iv_cancel_memo_operate.visibility = View.GONE
+        drawerToggle.isDrawerIndicatorEnabled = true
+    }
+
+    fun memoOperateStatus() {
+        hasBrowseStatus = false
+        invalidateOptionsMenu()
+        iv_memo_search.visibility = View.GONE
+        ll_memo_operate.visibility = View.VISIBLE
+        iv_cancel_memo_operate.visibility = View.VISIBLE
+        drawerToggle.isDrawerIndicatorEnabled = false
     }
 
     override fun show() {
@@ -163,22 +187,32 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
             drawer_layout.closeDrawers()
-        } else {
-            super.onBackPressed()
+            return
         }
+        if (!hasBrowseStatus) {
+            memoBrowseStatus()
+            return
+        }
+        super.onBackPressed()
     }
 
     fun getMemoData(folderName: String): MutableList<MemoBean> {
         val data = mutableListOf<MemoBean>()
         if (Constant.ALL_MEMO == folderName) {
-            val allMemo = app.memoBeanDao?.queryBuilder()?.orderDesc(MemoBeanDao.Properties.CreateTime)?.list()
+            val allMemo = app.memoBeanDao?.queryBuilder()
+                    ?.where(MemoBeanDao.Properties.DeleteTime.eq(0))
+                    ?.orderDesc(MemoBeanDao.Properties.CreateTime)
+                    ?.list()
             if (allMemo != null) {
                 data.addAll(allMemo)
             }
         } else {
             val folder = app.folderBeanDao?.queryBuilder()?.where(FolderBeanDao.Properties.Name.eq(folderName))?.list()
-            if (folder != null) {
-                val result = app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.FolderID.eq(folder[0].id))?.list()
+            if (folder != null && folder.size != 0) {
+                val result = app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.FolderID.eq(folder[0].id))
+                        ?.where(MemoBeanDao.Properties.DeleteTime.eq(0))
+                        ?.orderDesc(MemoBeanDao.Properties.CreateTime)
+                        ?.list()
                 if (result != null) {
                     data.addAll(result)
                 }

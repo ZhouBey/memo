@@ -16,9 +16,12 @@ import java.util.regex.Pattern
 /**
  * Created by zpy on 2017/10/10.
  */
-class MemoAdapter(val data: List<MemoBean>, var block: (position: Int, type: Int) -> kotlin.Unit) : RecyclerView.Adapter<MemoAdapter.ViewHolder>() {
+class MemoAdapter(val data: List<MemoBean>, var itemClickBlock: (position: Int, type: Int) -> Unit,
+                  var itemLongClickBlock: (position: Int, type: Int) -> Unit) : RecyclerView.Adapter<MemoAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int) = ViewHolder(parent?.inflate(R.layout.layout_memo_list_item)).itemClickListen { position, type ->
-        block(position, type)
+        itemClickBlock(position, type)
+    }.itemLongClickListener { position, type ->
+        itemLongClickBlock(position, type)
     }
 
     override fun getItemCount() = data.size
