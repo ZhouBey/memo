@@ -1,5 +1,7 @@
 package yy.zpy.cc.greendaolibrary.bean;
 
+import android.text.format.DateFormat;
+
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
@@ -139,9 +141,9 @@ public class MemoBean implements Serializable {
                 ", title='" + title + '\'' +
                 ", content='" + content + '\'' +
                 ", isLock=" + isLock +
-                ", createTime=" + createTime +
-                ", updateTime=" + updateTime +
-                ", deleteTime=" + deleteTime +
+                ", createTime=" + DateFormat.format("yyyy-MM-dd HH:mm:ss", createTime) +
+                ", updateTime=" + DateFormat.format("yyyy-MM-dd HH:mm:ss", updateTime) +
+                ", deleteTime=" + DateFormat.format("yyyy-MM-dd HH:mm:ss", deleteTime) +
                 ", greenDaoType=" + greenDaoType +
                 '}';
     }

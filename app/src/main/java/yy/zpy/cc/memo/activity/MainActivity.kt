@@ -11,23 +11,23 @@ import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
+import android.text.TextUtils
 import android.util.Log
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.EditText
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main_content.*
 import kotlinx.android.synthetic.main.activity_main_drawer.*
 import kotlinx.android.synthetic.main.content_main.*
 import org.jetbrains.anko.*
-import yy.zpy.cc.greendaolibrary.bean.FolderBeanDao
-import yy.zpy.cc.greendaolibrary.bean.MemoBean
-import yy.zpy.cc.greendaolibrary.bean.MemoBeanDao
+import yy.zpy.cc.greendaolibrary.bean.*
 import yy.zpy.cc.memo.R
 import yy.zpy.cc.memo.adapter.FolderAdapter
 import yy.zpy.cc.memo.adapter.MemoAdapter
 import yy.zpy.cc.memo.data.Folder
 import yy.zpy.cc.memo.data.Memo
+import yy.zpy.cc.memo.dialog.SelectFolderDialog
 import yy.zpy.cc.memo.interf.IBaseUI
 import yy.zpy.cc.memo.logcat
 import yy.zpy.cc.memo.util.Constant
@@ -43,6 +43,9 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
     var folderAdapter by Delegates.notNull<FolderAdapter>()
     var hasBrowseStatus = true
     var folderName = Constant.ALL_MEMO
+    var selectFolderDialog by Delegates.notNull<SelectFolderDialog>()
+    var showFolderID = 0L
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,35 +54,38 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         viewListener()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
-        return hasBrowseStatus
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_settings -> {
-                toast("设置")
-                return true
-            }
-            R.id.action_about -> {
-                toast("关于")
-                return true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
+//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+//        menuInflater.inflate(R.menu.menu_main, menu)
+//        return hasBrowseStatus
+//    }
+//
+//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+//        return when (item.itemId) {
+//            R.id.action_settings -> {
+//                toast("设置")
+//                return true
+//            }
+//            R.id.action_about -> {
+//                toast("关于")
+//                return true
+//            }
+//            else -> super.onOptionsItemSelected(item)
+//        }
+//    }
 
     override fun viewListener() {
         fab.setOnClickListener {
-            startActivity<MemoEditActivity>()
+            startActivity<MemoEditActivity>("folderName" to folderName)
             overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_no)
         }
         iv_cancel_memo_operate.setOnClickListener {
             memoBrowseStatus()
         }
         tv_memo_move.setOnClickListener {
-
+            folderData.clear()
+            folderData.addAll(getFolderAllData())
+            selectFolderDialog.data = folderData
+            selectFolderDialog.show()
         }
         tv_memo_delete.setOnClickListener {
             alert("确定要删除" + tv_select_folder_name.text + "条便签吗？", "删除") {
@@ -92,8 +98,11 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                                 app.memoBeanDao?.update(memoBean)
                             }
                         }
+                        //更新便签列表
                         memoData.clear()
                         memoData.addAll(getMemoData(folderName))
+                        memoAdapter.notifyDataSetChanged()
+                        //更新文件夹列表
                         folderData.clear()
                         folderData.addAll(getFolderAllData())
                         folderAdapter.notifyDataSetChanged()
@@ -132,6 +141,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         drawer_layout.setDrawerListener(drawerToggle)
         drawerToggle.isDrawerIndicatorEnabled = true
         tv_select_folder_name.text = folderName
+        showFolderID = app.folderBeanDao?.queryBuilder()?.where(FolderBeanDao.Properties.Name.eq(folderName))?.unique()?.id ?: 0L
         val linearLayoutManager = LinearLayoutManager(this)
         val dividerItemDecoration = DividerItemDecoration(this, linearLayoutManager.orientation)
         dividerItemDecoration.setDrawable(resources.getDrawable(R.drawable.divider_item_decoration, theme))
@@ -141,6 +151,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
             val name = folderData[position].folderBean.name
             folderName = name
             tv_select_folder_name.text = folderName
+            showFolderID = folderData[position].folderBean.id
             showMemoList(name)
         }
         rv_drawer_folder.addItemDecoration(dividerItemDecoration)
@@ -165,6 +176,9 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         rv_memo_list.layoutManager = LinearLayoutManager(this@MainActivity)
         rv_memo_list.adapter = memoAdapter
         rv_memo_list.addItemDecoration(dividerItemDecoration)
+        initSelectFolderDialog()
+
+
         fab.rippleColor = Color.parseColor("#E1E1E1")
         doAsync {
             Thread.sleep(500)
@@ -172,6 +186,82 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                 showFloatingActionButton()
             }
         }
+    }
+
+    fun initSelectFolderDialog() {
+        selectFolderDialog = SelectFolderDialog(this, R.style.WhiteDialog)
+        selectFolderDialog.onClickListener = object : SelectFolderDialog.OnClickListener {
+            override fun itemClick(position: Int, type: Int) {
+                selectFolderDialog.data.forEach {
+                    logcat(it.folderBean.id)
+                }
+                val folderID = selectFolderDialog.data[position].folderBean.id
+                val memoDataCheck = memoData.filter {
+                    it.check
+                }
+                memoDataCheck.forEach {
+                    val memoBean = app.memoBeanDao?.load(it.memoBean.id)
+                    memoBean?.folderID = folderID
+                    app.memoBeanDao?.update(memoBean)
+                }
+                selectFolderDialog.dismiss()
+                memoBrowseStatus()
+                toast("移动完成")
+                //更新侧边栏adapter
+                showDrawerFolderList()
+                //更新主页便签数据
+                showMemoList(tv_select_folder_name.text.toString())
+            }
+
+            override fun newFolderClick() {
+                selectFolderDialog.dismiss()
+                alert {
+                    var etFolderName by Delegates.notNull<EditText>()
+                    customView {
+                        verticalLayout {
+                            lparams(matchParent, wrapContent) {
+                                verticalPadding = dip(20)
+                                horizontalPadding = dip(15)
+                            }
+                            textView("新建文件夹") {
+                                textSize = sp(9).toFloat()
+                                textColor = R.color.colorFont
+                            }.lparams(wrapContent, wrapContent) {
+                                marginStart = dip(3)
+                            }
+                            etFolderName = editText {
+                                singleLine = true
+                                textSize = sp(9).toFloat()
+                                textColor = R.color.colorFont
+                            }.lparams(matchParent, wrapContent) {
+                                topMargin = dip(20)
+                            }
+                        }
+                        okButton {
+                            val folderName = etFolderName.text.trim().toString()
+                            if (TextUtils.isEmpty(folderName)) {
+                                toast("名字不能为空")
+                                return@okButton
+                            }
+                            val folderBean = FolderBean()
+                            folderBean.createTime = System.currentTimeMillis()
+                            folderBean.greenDaoType = GreenDaoType.TEXT
+                            folderBean.name = folderName
+                            folderBean.isLock = false
+                            app.folderBeanDao?.insert(folderBean)
+                            showDrawerFolderList()
+                            selectFolderDialog.data = folderData
+                            selectFolderDialog.show()
+                        }
+                        cancelButton {
+
+                        }
+                    }
+                }.show()
+            }
+
+        }
+        selectFolderDialog.y = dimen(R.dimen.actionBarHeight)
     }
 
     fun memoAdapterNotifyDataSetChanged(position: Int) {
@@ -295,6 +385,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                 list = app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.FolderID.eq(it.id))?.where(MemoBeanDao.Properties.DeleteTime.eq(0))?.list()
             }
             val size = list?.size ?: 0
+            folder.folderBean.id = it.id
             folder.folderBean.name = it.name
             folder.count = size
             data.add(folder)

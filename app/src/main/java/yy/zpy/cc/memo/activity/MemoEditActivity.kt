@@ -125,6 +125,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             iv_lock_status.isSelected = lockStatus
         }
         ll_select_fold.setOnClickListener {
+            selectFolderDialog.data = folderDataList
             selectFolderDialog.show()
         }
         ib_edit_submit_or_preview.setOnClickListener {
@@ -209,40 +210,41 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         if (memo != null) {
             memoBean = memo as MemoBean
             memoBeanID = memoBean?.id ?: -1L
+            logcat(memoBean.toString())
         }
         val folderBeanList = app.folderBeanDao?.loadAll()
         folderBeanList?.forEach {
             val folder = Folder()
-            logcat(it.name)
             folder.folderBean.name = it.name
             folder.folderBean.id = it.id
             folderDataList.add(folder)
         }
+        var folderName by Delegates.notNull<String>()
         if (memoBean == null) {
+            folderName = intent?.extras?.get("folderName") as String
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
-            folderDataList[0].check = true
-            tv_select_fold.text = folderDataList[0].folderBean.name
-            logcat("name=" + folderDataList[0].folderBean.name)
             tv_memo_time.text = String.format("今天 %s", DateFormat.format("HH:mm", Calendar.getInstance()).toString())
-            selectFolderID = folderDataList[0].folderBean.id
         } else {
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
             finishStatus()
             val folderBean = app.folderBeanDao?.load(memoBean?.folderID)
-            tv_select_fold.text = folderBean?.name
+            folderName = folderBean?.name ?: Constant.ALL_MEMO
+            tv_select_fold.text = folderName
             val calendar = Calendar.getInstance()
-            calendar.timeInMillis = folderBean?.createTime ?: System.currentTimeMillis()
+            calendar.timeInMillis = memoBean?.createTime ?: System.currentTimeMillis()
             val dateDesc = getDateDesc(calendar)
             if (TextUtils.isEmpty(dateDesc)) {
                 tv_memo_time.text = DateFormat.format("MM月dd日 HH:mm", calendar).toString()
             } else {
                 tv_memo_time.text = String.format("%s%s", dateDesc, DateFormat.format("HH:mm", calendar).toString())
             }
-            folderDataList.forEach continuing@ {
-                if (it.folderBean.name == folderBean?.name) {
-                    it.check = true
-                    return@continuing
-                }
+        }
+        tv_select_fold.text = folderName
+        folderDataList.forEach continuing@ {
+            if (it.folderBean.name == folderName) {
+                it.check = true
+                selectFolderID = it.folderBean.id
+                return@continuing
             }
         }
         initSelectFolderDialog()
@@ -261,7 +263,6 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     }
 
     fun showMemoInfo(content: String) {
-        logcat("内容=" + content)
         val contentTagList = cutStringByImgTag(content)
         var isFirst = true
         ll_root_memo_content.addView(View(this@MemoEditActivity))
@@ -325,7 +326,8 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     }
 
     fun initSelectFolderDialog() {
-        selectFolderDialog = SelectFolderDialog(this, R.style.WhiteDialog, folderDataList, object : SelectFolderDialog.OnClickListener {
+        selectFolderDialog = SelectFolderDialog(this, R.style.WhiteDialog)
+        selectFolderDialog.onClickListener = object : SelectFolderDialog.OnClickListener {
             override fun itemClick(position: Int, type: Int) {
                 selectFolderID = folderDataList[position].folderBean.id
                 folderDataList.forEach {
@@ -392,7 +394,9 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                 }.show()
             }
 
-        })
+        }
+        selectFolderDialog.x = dip(10)
+        selectFolderDialog.y = dip(80)
     }
 
     fun editAddTextChangeListener(editText: EditText) {
