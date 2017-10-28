@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -578,12 +579,13 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     fun getEditText(): EditText {
         return EditText(this@MemoEditActivity).apply {
             val lp = LinearLayout.LayoutParams(matchParent, wrapContent)
-            lp.topMargin = dip(15)
+//            lp.topMargin = dip(15)
             layoutParams = lp
             gravity = Gravity.TOP
             setLineSpacing(0f, 1.1f)
             textColor = R.color.colorFont
             textSize = 16f
+//            backgroundColor = Color.BLUE
             background = null
             setOnClickListener {
                 requestFocus()
@@ -595,7 +597,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     fun getImageView(): ImageView {
         return ImageViewWithDel(this@MemoEditActivity).apply {
             val lp = LinearLayout.LayoutParams(matchParent, wrapContent)
-            lp.topMargin = dip(15)
+//            lp.topMargin = dip(15)
             layoutParams = lp
             scaleType = ImageView.ScaleType.FIT_XY
             setOnClickListener {
@@ -609,7 +611,6 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                         val previousView = ll_root_memo_content.getChildAt(index - 1)
                         val nextView = ll_root_memo_content.getChildAt(index + 1)
                         if (previousView is EditText && nextView is EditText) {
-                            logcat("aaa")
                             previousView.text = previousView.text.append("\n").append(nextView.text)
                             ll_root_memo_content.removeView(nextView)
                         }
