@@ -483,9 +483,9 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                     val text = currentEditText.text
                     val firstHalf = text.substring(0, insertImagePosition)
                     val lastHalf = text.substring(insertImagePosition, text.length)
-                    currentEditText.setText(firstHalf)
+                    currentEditText.setText(firstHalf.trimEnd())
                     val editText = getEditText()
-                    editText.setText(lastHalf)
+                    editText.setText(lastHalf.trimStart())
                     ll_root_memo_content.addView(imageView, selectEditTextIndex + 1)
                     ll_root_memo_content.addView(editText, selectEditTextIndex + 2)
                 }
@@ -577,7 +577,9 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
 
     fun getEditText(): EditText {
         return EditText(this@MemoEditActivity).apply {
-            layoutParams = LinearLayout.LayoutParams(matchParent, wrapContent)
+            val lp = LinearLayout.LayoutParams(matchParent, wrapContent)
+            lp.topMargin = dip(15)
+            layoutParams = lp
             gravity = Gravity.TOP
             setLineSpacing(0f, 1.1f)
             textColor = R.color.colorFont
@@ -592,6 +594,9 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
 
     fun getImageView(): ImageView {
         return ImageViewWithDel(this@MemoEditActivity).apply {
+            val lp = LinearLayout.LayoutParams(matchParent, wrapContent)
+            lp.topMargin = dip(15)
+            layoutParams = lp
             scaleType = ImageView.ScaleType.FIT_XY
             setOnClickListener {
                 isSelect = !isSelect
@@ -599,8 +604,17 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             }
             onDeleteClickListener = object : OnDeleteClickListener {
                 override fun delete() {
+                    val index = ll_root_memo_content.indexOfChild(this@apply)
+                    if (index != 0 && index != ll_root_memo_content.childCount - 1) {
+                        val previousView = ll_root_memo_content.getChildAt(index - 1)
+                        val nextView = ll_root_memo_content.getChildAt(index + 1)
+                        if (previousView is EditText && nextView is EditText) {
+                            logcat("aaa")
+                            previousView.text = previousView.text.append("\n").append(nextView.text)
+                            ll_root_memo_content.removeView(nextView)
+                        }
+                    }
                     ll_root_memo_content.removeView(this@apply)
-//                    deleteSinglePicture(getTag(R.id.tag_image_view_uri).toString())
                     saveMemo(generateText())
                 }
             }
