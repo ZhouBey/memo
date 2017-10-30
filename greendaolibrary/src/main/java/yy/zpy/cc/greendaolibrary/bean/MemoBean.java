@@ -35,9 +35,8 @@ public class MemoBean implements Serializable {
     private GreenDaoType greenDaoType;
 
     @Generated(hash = 131344341)
-    public MemoBean(Long id, long folderID, String title, String content,
-                    boolean isLock, long createTime, long updateTime, long deleteTime,
-                    GreenDaoType greenDaoType) {
+    public MemoBean(Long id, long folderID, String title, String content, boolean isLock,
+            long createTime, long updateTime, long deleteTime, GreenDaoType greenDaoType) {
         this.id = id;
         this.folderID = folderID;
         this.title = title;

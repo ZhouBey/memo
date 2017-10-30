@@ -352,17 +352,17 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                                 horizontalPadding = dip(15)
                             }
                             textView("新建文件夹") {
-                                textSize = sp(9).toFloat()
+                                textSize = 15f
                                 textColor = R.color.colorFont
                             }.lparams(wrapContent, wrapContent) {
                                 marginStart = dip(3)
                             }
                             etFolderName = editText {
                                 singleLine = true
-                                textSize = sp(9).toFloat()
+                                textSize = 14f
                                 textColor = R.color.colorFont
                             }.lparams(matchParent, wrapContent) {
-                                topMargin = dip(20)
+                                topMargin = dip(15)
                             }
                         }
                         okButton {

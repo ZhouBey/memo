@@ -154,13 +154,74 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         val dividerItemDecoration = DividerItemDecoration(this, linearLayoutManager.orientation)
         dividerItemDecoration.setDrawable(resources.getDrawable(R.drawable.divider_item_decoration, theme))
         rv_drawer_folder.layoutManager = linearLayoutManager
-        folderAdapter = FolderAdapter(folderData, false) { position, _ ->
+        folderAdapter = FolderAdapter(folderData, false, { position, type ->
             drawer_layout.closeDrawers()
             folderName = folderData[position].folderBean.name
             tv_select_folder_name.text = folderName
             showMemoList(folderName)
             if (View.INVISIBLE == fab.visibility && resources.getString(R.string.wastebasket) != folderName) showFloatingActionButton()
-        }
+        }, { position, _ ->
+            val folderBean = folderData[position].folderBean
+            val options = listOf("重命名", "删除")
+            selector("操作", options) { _, items ->
+                when (items) {
+                    0 -> {
+                        alert {
+                            var etFolderName by Delegates.notNull<EditText>()
+                            customView {
+                                verticalLayout {
+                                    lparams(matchParent, wrapContent) {
+                                        verticalPadding = dip(20)
+                                        horizontalPadding = dip(15)
+                                    }
+                                    textView("重命名") {
+                                        textSize = 15f
+                                        textColor = R.color.colorFont
+                                    }.lparams(wrapContent, wrapContent) {
+                                        marginStart = dip(3)
+                                    }
+                                    etFolderName = editText {
+                                        singleLine = true
+                                        textSize = 14f
+                                        textColor = R.color.colorFont
+                                        setText(folderBean.name)
+                                        selectAll()
+                                    }.lparams(matchParent, wrapContent) {
+                                        topMargin = dip(15)
+                                    }
+                                }
+                                okButton {
+                                    val folderName = etFolderName.text.trim().toString()
+                                    if (TextUtils.isEmpty(folderName)) {
+                                        toast("名字不能为空")
+                                        return@okButton
+                                    }
+                                    folderBean.name = folderName
+                                    app.folderBeanDao?.update(folderBean)
+                                    showDrawerFolderList()
+                                }
+                                cancelButton {
+
+                                }
+                            }
+                        }.show()
+                    }
+                    1 -> {
+                        alert("确定要删除吗？", "删除") {
+                            okButton {
+                                folderBean.deleteTime = System.currentTimeMillis()
+                                app.folderBeanDao?.update(folderBean)
+                                showDrawerFolderList()
+                            }
+                            cancelButton {
+
+                            }
+                        }.show()
+                    }
+                }
+
+            }
+        })
         rv_drawer_folder.addItemDecoration(dividerItemDecoration)
         rv_drawer_folder.adapter = folderAdapter
         memoAdapter = MemoAdapter(memoData,
@@ -239,17 +300,17 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                         horizontalPadding = dip(15)
                     }
                     textView("新建文件夹") {
-                        textSize = sp(9).toFloat()
+                        textSize = 15f
                         textColor = R.color.colorFont
                     }.lparams(wrapContent, wrapContent) {
                         marginStart = dip(3)
                     }
                     etFolderName = editText {
                         singleLine = true
-                        textSize = sp(9).toFloat()
+                        textSize = 14f
                         textColor = R.color.colorFont
                     }.lparams(matchParent, wrapContent) {
-                        topMargin = dip(20)
+                        topMargin = dip(15)
                     }
                 }
                 okButton {
@@ -384,7 +445,11 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
     }
 
     fun getFolderAllData(): MutableList<Folder> {
-        val folders = app.folderBeanDao?.loadAll()
+        var loadAll = app.folderBeanDao?.loadAll()
+        loadAll?.forEach {
+            logcat(it.toString())
+        }
+        val folders = app.folderBeanDao?.queryBuilder()?.where(FolderBeanDao.Properties.DeleteTime.eq(0))?.list()
         val data = mutableListOf<Folder>()
         folders?.forEach {
             val folder = Folder()

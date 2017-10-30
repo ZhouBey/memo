@@ -8,20 +8,31 @@ import kotlinx.android.synthetic.main.dialog_select_folder_item.view.*
 import org.jetbrains.anko.imageResource
 import yy.zpy.cc.memo.R
 import yy.zpy.cc.memo.data.Folder
+import yy.zpy.cc.memo.logcat
 
 
 /**
  * Created by zpy on 2017/9/18.
  */
-class FolderAdapter(var data: List<Folder>, var isSelect: Boolean, var block: (position: Int, type: Int) -> kotlin.Unit) : RecyclerView.Adapter<FolderAdapter.ViewHolder>() {
+class FolderAdapter(var data: List<Folder>,
+                    var isSelect: Boolean,
+                    var itemClickBlock: (position: Int, type: Int) -> kotlin.Unit,
+                    var itemLongClickBlock: (position: Int, type: Int) -> Unit) : RecyclerView.Adapter<FolderAdapter.ViewHolder>() {
     override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
         holder?.bind(position)
     }
 
     override fun getItemCount() = data.size
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int) = ViewHolder(parent?.inflate(R.layout.dialog_select_folder_item)).itemClickListen { position, type ->
-        block(position, type)
+    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
+        val viewHolder = ViewHolder(parent?.inflate(R.layout.dialog_select_folder_item))
+        viewHolder.itemClickListen { position, type ->
+            itemClickBlock(position, type)
+        }
+        viewHolder.itemLongClickListener { position, type ->
+            itemLongClickBlock(position, type)
+        }
+        return viewHolder
     }
 
     inner class ViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {

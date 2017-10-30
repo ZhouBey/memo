@@ -20,16 +20,16 @@ public class FolderBean {
     @Id
     private Long id;
     private String name;
-    private Long createTime;
-    private Long updateTime;
-    private Long deleteTime;
+    private long createTime;
+    private long updateTime;
+    private long deleteTime;
     private Boolean isLock;
     @Convert(converter = GreenDaoTypeConverter.class, columnType = String.class)
     private GreenDaoType greenDaoType;
 
-    @Generated(hash = 1970749701)
-    public FolderBean(Long id, String name, Long createTime, Long updateTime,
-            Long deleteTime, Boolean isLock, GreenDaoType greenDaoType) {
+    @Generated(hash = 1060495434)
+    public FolderBean(Long id, String name, long createTime, long updateTime,
+            long deleteTime, Boolean isLock, GreenDaoType greenDaoType) {
         this.id = id;
         this.name = name;
         this.createTime = createTime;
@@ -59,27 +59,27 @@ public class FolderBean {
         this.name = name;
     }
 
-    public Long getCreateTime() {
+    public long getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Long createTime) {
+    public void setCreateTime(long createTime) {
         this.createTime = createTime;
     }
 
-    public Long getUpdateTime() {
+    public long getUpdateTime() {
         return updateTime;
     }
 
-    public void setUpdateTime(Long updateTime) {
+    public void setUpdateTime(long updateTime) {
         this.updateTime = updateTime;
     }
 
-    public Long getDeleteTime() {
+    public long getDeleteTime() {
         return deleteTime;
     }
 
-    public void setDeleteTime(Long deleteTime) {
+    public void setDeleteTime(long deleteTime) {
         this.deleteTime = deleteTime;
     }
 

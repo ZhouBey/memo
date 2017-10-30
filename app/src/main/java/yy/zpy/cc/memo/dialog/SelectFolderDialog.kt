@@ -36,7 +36,7 @@ class SelectFolderDialog(context: Context, themeResId: Int) : Dialog(context, th
         rv_dialog_folder.setHasFixedSize(true)
         val linearLayoutManager = LinearLayoutManager(context)
         rv_dialog_folder.layoutManager = linearLayoutManager
-        rv_dialog_folder.adapter = FolderAdapter(data, true) { position, type -> onClickListener?.itemClick(position, type) }
+        rv_dialog_folder.adapter = FolderAdapter(data, true, { position, type -> onClickListener?.itemClick(position, type) }, { _, _ -> })
         val dividerItemDecoration = DividerItemDecoration(context, linearLayoutManager.orientation)
         dividerItemDecoration.setDrawable(context.resources.getDrawable(R.drawable.divider_item_decoration, context.theme))
         rv_dialog_folder.addItemDecoration(dividerItemDecoration)

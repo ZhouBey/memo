@@ -6,7 +6,6 @@ import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.StrictMode
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +16,6 @@ import yy.zpy.cc.greendaolibrary.bean.ImageBeanDao
 import yy.zpy.cc.greendaolibrary.bean.MemoBeanDao
 import yy.zpy.cc.greendaolibrary.helper.GreenDaoOpenHelper
 import kotlin.properties.Delegates
-
 
 
 /**
@@ -103,16 +101,4 @@ fun generateTag(): String {
     tag = String.format(tag, callerClazzName, caller.methodName, caller.lineNumber)
     return tag
 }
-
-fun ViewGroup.inflate(layoutRes: Int): View {
-    return LayoutInflater.from(context).inflate(layoutRes, this, false)
-}
-
-fun <T : RecyclerView.ViewHolder> T.itemClickListen(event: (position: Int, type: Int) -> Unit): T {
-    itemView.setOnClickListener {
-        event.invoke(adapterPosition, itemViewType)
-    }
-    return this
-}
-
 fun getScreenWidth(context: Context) = context.resources.displayMetrics.widthPixels

@@ -12,7 +12,6 @@ import org.jetbrains.anko.backgroundColor
 import yy.zpy.cc.memo.R
 import yy.zpy.cc.memo.activity.getDateDesc
 import yy.zpy.cc.memo.data.Memo
-import yy.zpy.cc.memo.logcat
 import yy.zpy.cc.memo.util.Constant
 import java.util.*
 import java.util.regex.Pattern
@@ -27,14 +26,9 @@ class MemoAdapter(val data: List<Memo>, var itemClickBlock: (position: Int, type
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
         val viewHolder = ViewHolder(parent?.inflate(R.layout.layout_memo_list_item))
         viewHolder.itemClickListen { position, type ->
-            //            if (hasSelect) {
-//                viewHolder.itemView.backgroundColor = parent?.context?.resources?.getColor(R.color.colorMemoSelected) ?: Color.parseColor("#EEEEEE")
-//            } else {
             itemClickBlock(position, type)
-//            }
         }
         viewHolder.itemLongClickListener { position, type ->
-            //            viewHolder.itemView.backgroundColor = parent?.context?.resources?.getColor(R.color.colorMemoSelected) ?: Color.parseColor("#EEEEEE")
             itemLongClickBlock(position, type)
         }
         return viewHolder
