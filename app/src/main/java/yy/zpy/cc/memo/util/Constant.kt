@@ -13,5 +13,7 @@ class Constant {
         val REGEX_IMAGE_TAG = "<img\\sid=\"\\d*\"/>"
         val REGEX_IMAGE_ID_TAG = "(id)=(\"|')(.*?)(\"|')"
         val MEMO_PICTURES = "MemoCropPictures"
+
+        val SP_COVER_PATH = "cover_path"
     }
 }

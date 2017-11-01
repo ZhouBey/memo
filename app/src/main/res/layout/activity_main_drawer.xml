@@ -13,43 +13,29 @@
         android:background="@color/colorWhite">
 
         <ImageView
-            android:id="@+id/iv_drawer_image"
+            android:id="@+id/iv_cover_image"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:layout_alignParentTop="true"
             android:scaleType="centerCrop"
             android:src="@drawable/img_drawer_background" />
 
-        <LinearLayout
-            android:id="@+id/rl_drawer_wastebasket"
+        <TextView
+            android:id="@+id/tv_drawer_desc"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_alignParentBottom="true"
-            android:background="?android:attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"
-            android:paddingBottom="15dp"
-            android:paddingEnd="20dp"
-            android:paddingStart="20dp"
-            android:paddingTop="15dp">
-
-            <ImageView
-                android:layout_width="17dp"
-                android:layout_height="17dp"
-                android:src="@drawable/ic_wastebasket" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="30dp"
-                android:text="@string/wastebasket" />
-        </LinearLayout>
+            android:layout_centerHorizontal="true"
+            android:background="@color/colorPrimary"
+            android:gravity="center"
+            android:text="好记性不如烂笔头"
+            android:textColor="@color/colorWhite" />
 
         <LinearLayout
             android:id="@+id/rl_drawer_create_folder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@id/rl_drawer_wastebasket"
+            android:layout_above="@id/tv_drawer_desc"
             android:background="?android:attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
@@ -70,12 +56,37 @@
                 android:text="@string/create" />
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/rl_drawer_wastebasket"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/rl_drawer_create_folder"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingBottom="15dp"
+            android:paddingEnd="20dp"
+            android:paddingStart="20dp"
+            android:paddingTop="15dp">
+
+            <ImageView
+                android:layout_width="17dp"
+                android:layout_height="17dp"
+                android:src="@drawable/ic_wastebasket" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:text="@string/wastebasket" />
+        </LinearLayout>
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rv_drawer_folder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_above="@id/rl_drawer_create_folder"
-            android:layout_below="@id/iv_drawer_image"
+            android:layout_above="@id/rl_drawer_wastebasket"
+            android:layout_below="@id/iv_cover_image"
             android:background="@color/colorWhite"
             android:fitsSystemWindows="true" />
     </RelativeLayout>

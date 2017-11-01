@@ -2,11 +2,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="50dp"
-    android:paddingEnd="15dp"
-    android:paddingStart="15dp"
+    android:background="?android:selectableItemBackground"
     android:clickable="true"
     android:focusable="true"
-    android:background="?android:selectableItemBackground">
+    android:paddingEnd="15dp"
+    android:paddingStart="15dp">
 
     <ImageView
         android:id="@+id/iv_folder_icon"
@@ -41,5 +41,5 @@
         android:layout_marginStart="30dp"
         android:layout_toEndOf="@id/iv_folder_icon"
         android:textColor="@color/colorFont"
-        android:textSize="15sp" />
+        android:textSize="14sp" />
 </RelativeLayout>

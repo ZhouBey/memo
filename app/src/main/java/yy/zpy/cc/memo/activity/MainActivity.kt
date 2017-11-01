@@ -1,11 +1,18 @@
 package yy.zpy.cc.memo.activity
 
+import android.Manifest
 import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.support.design.widget.NavigationView
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
@@ -16,24 +23,38 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
+import com.yalantis.ucrop.UCrop
+import com.zhihu.matisse.Matisse
+import com.zhihu.matisse.MimeType
+import com.zhihu.matisse.internal.entity.CaptureStrategy
+import kotlinx.android.synthetic.main.activity_edit_memo.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main_content.*
 import kotlinx.android.synthetic.main.activity_main_drawer.*
 import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.drawer_header.*
 import org.jetbrains.anko.*
+import permissions.dispatcher.*
 import yy.zpy.cc.greendaolibrary.bean.*
 import yy.zpy.cc.memo.R
 import yy.zpy.cc.memo.adapter.FolderAdapter
 import yy.zpy.cc.memo.adapter.MemoAdapter
+import yy.zpy.cc.memo.custom.MyGlideEngine
 import yy.zpy.cc.memo.data.Folder
 import yy.zpy.cc.memo.data.Memo
 import yy.zpy.cc.memo.dialog.SelectFolderDialog
 import yy.zpy.cc.memo.interf.IBaseUI
 import yy.zpy.cc.memo.logcat
 import yy.zpy.cc.memo.util.Constant
+import java.io.File
 import kotlin.properties.Delegates
 
-
+@RuntimePermissions
 class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSelectedListener {
     override fun getLayout() = R.layout.activity_main
     var drawerToggle by Delegates.notNull<ActionBarDrawerToggle>()
@@ -124,6 +145,17 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
 
                 }
             }.show()
+        }
+        iv_cover_image.setOnClickListener {
+            val options = listOf("更改相册封面")
+            selector(null, options) { _, items ->
+                when (items) {
+                    0 -> {
+                        pickerPictureWithPermissionCheck()
+                    }
+                }
+
+            }
         }
     }
 
@@ -227,10 +259,25 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         memoAdapter = MemoAdapter(memoData,
                 { position, _ ->
                     if (hasBrowseStatus) {
-                        startActivity<MemoEditActivity>(
-                                "memo" to (memoData[position].memoBean)
-                        )
-                        overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_no)
+                        if (resources.getString(R.string.wastebasket) == folderName) {
+                            alert("恢复这条便签？") {
+                                okButton {
+                                    val memo = memoData[position]
+                                    memo.memoBean.deleteTime = 0
+                                    app.memoBeanDao?.update(memo.memoBean)
+                                    showMemoList(folderName)
+                                    showDrawerFolderList()
+                                }
+                                cancelButton {
+
+                                }
+                            }.show()
+                        } else {
+                            startActivity<MemoEditActivity>(
+                                    "memo" to (memoData[position].memoBean)
+                            )
+                            overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_no)
+                        }
                     } else {
                         memoAdapterNotifyDataSetChanged(position)
                     }
@@ -436,6 +483,15 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
     override fun show() {
         showDrawerFolderList()
         showMemoList(tv_select_folder_name.text.toString())
+        val coverPath = app.getSpValue(Constant.SP_COVER_PATH, "")
+        Glide.with(this@MainActivity).load(coverPath)
+                .apply(RequestOptions().error(R.drawable.img_drawer_background)
+                        .diskCacheStrategy(DiskCacheStrategy.NONE)
+                ).into(object : SimpleTarget<Drawable>() {
+            override fun onResourceReady(resource: Drawable?, transition: Transition<in Drawable>?) {
+                adjustImageView(this@MainActivity, iv_cover_image, resource)
+            }
+        })
     }
 
     fun showDrawerFolderList() {
@@ -445,10 +501,6 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
     }
 
     fun getFolderAllData(): MutableList<Folder> {
-        var loadAll = app.folderBeanDao?.loadAll()
-        loadAll?.forEach {
-            logcat(it.toString())
-        }
         val folders = app.folderBeanDao?.queryBuilder()?.where(FolderBeanDao.Properties.DeleteTime.eq(0))?.list()
         val data = mutableListOf<Folder>()
         folders?.forEach {
@@ -529,4 +581,98 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         }
         return result
     }
+
+    @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
+    fun pickerPicture() {
+        Matisse.from(this@MainActivity)
+                .choose(MimeType.allOf())
+                .theme(R.style.Memo_Zhihu)
+                .countable(true)
+                .maxSelectable(1)
+                .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                .thumbnailScale(0.85f)
+                .imageEngine(MyGlideEngine())
+                .capture(true)
+                .captureStrategy(CaptureStrategy(true, "yy.zpy.cc.memo.file.provider"))
+                .forResult(Constant.REQUEST_CODE_CHOOSE)
+    }
+
+    @OnShowRationale(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
+    fun showRationaleForPickerPicture(request: PermissionRequest) {
+        alert("选择图片需要您的相册权限", "获取权限") {
+            positiveButton("获取") {
+                request.proceed()
+            }
+            cancelButton {
+                request.cancel()
+            }
+        }.show()
+    }
+
+    @OnPermissionDenied(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
+    fun onExternalStorageDenied() {
+        toast("选择图片需要您的相册权限")
+    }
+
+    @OnNeverAskAgain(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
+    fun onExternalStorageNeverAskAgain() {
+        alert("您需要去设置里面开启相册权限", "提示") {
+            positiveButton("设置") {
+
+            }
+            negativeButton("取消") {
+
+            }
+        }.show()
+    }
+
+    @SuppressLint("NeedOnRequestPermissionsResult")
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        onRequestPermissionsResult(requestCode, grantResults)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == RESULT_OK && requestCode == Constant.REQUEST_CODE_CHOOSE) {
+            val obtainResult = Matisse.obtainResult(data)
+            val uri = obtainResult[0]
+            val RESULT_CROP_IMAGE_PATH = Environment.getExternalStorageDirectory().toString() + "/" + Constant.MEMO_PICTURES
+            val folderFile = File(RESULT_CROP_IMAGE_PATH)
+            if (!folderFile.exists()) {
+                folderFile.mkdirs()
+            }
+            val file = File(folderFile, System.currentTimeMillis().toString() + ".png")
+            UCrop.of(uri, Uri.parse("file://" + file.path))
+                    .withOptions(UCrop.Options().apply {
+                        setToolbarColor(resources.getColor(R.color.colorPrimary))
+                        setStatusBarColor(resources.getColor(R.color.colorPrimaryDark))
+                        setActiveWidgetColor(resources.getColor(R.color.colorPrimary))
+                    })
+                    .useSourceImageAspectRatio()
+                    .start(this@MainActivity)
+            return
+        }
+        if (requestCode == UCrop.REQUEST_CROP) {
+            if (resultCode == UCrop.RESULT_ERROR) {
+                logcat("出错了=" + data?.getSerializableExtra(UCrop.EXTRA_ERROR))
+                return
+            }
+            if (data != null) {
+                val resultUri = UCrop.getOutput(data)
+                resultUri?.path?.run { app.putSpValue(Constant.SP_COVER_PATH, resultUri.path) }
+                Glide.with(this@MainActivity).load(resultUri)
+                        .apply(RequestOptions().error(R.drawable.img_drawer_background)
+                                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                        ).into(object : SimpleTarget<Drawable>() {
+                    override fun onResourceReady(resource: Drawable?, transition: Transition<in Drawable>?) {
+                        adjustImageView(this@MainActivity, iv_cover_image, resource)
+                    }
+                })
+            } else {
+                logcat("data is null")
+            }
+        }
+    }
+
 }

@@ -279,7 +279,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                             ).into(object : SimpleTarget<Drawable>() {
                         override fun onResourceReady(resource: Drawable?, transition: Transition<in Drawable>?) {
-                            adjustImageView(imageView, resource)
+                            adjustImageView(this@MemoEditActivity, imageView, resource)
                         }
 
                         override fun onLoadFailed(errorDrawable: Drawable?) {
@@ -472,7 +472,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                         ).into(object : SimpleTarget<Drawable>() {
                     override fun onResourceReady(resource: Drawable?, transition: Transition<in Drawable>?) {
-                        adjustImageView(imageView, resource)
+                        adjustImageView(this@MemoEditActivity,imageView, resource)
                     }
                 })
                 val currentEditText = ll_root_memo_content.getChildAt(selectEditTextIndex) as EditText
@@ -499,23 +499,6 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                 logcat("data is null")
             }
         }
-    }
-
-    fun adjustImageView(imageView: ImageView, resource: Drawable?) {
-        val width = getScreenWidth(this@MemoEditActivity)
-        var height: Int by Delegates.notNull<Int>()
-        val bitmapDrawable = resource as BitmapDrawable
-        val bitmap = bitmapDrawable.bitmap
-        var scale by Delegates.notNull<Float>()
-        if (bitmap.width >= width) {
-            scale = bitmap.width.toFloat() / width.toFloat()
-            height = (bitmap.height / scale).toInt()
-        } else {
-            scale = width.toFloat() / bitmap.width.toFloat()
-            height = (bitmap.height * scale).toInt()
-        }
-        imageView.layoutParams.height = height
-        imageView.setImageDrawable(resource)
     }
 
     @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
@@ -672,4 +655,21 @@ fun getDateDesc(calendar: Calendar): String {
         return "今天"
     }
     return ""
+}
+
+fun adjustImageView(context: Context, imageView: ImageView, resource: Drawable?) {
+    val width = getScreenWidth(context)
+    var height: Int by Delegates.notNull<Int>()
+    val bitmapDrawable = resource as BitmapDrawable
+    val bitmap = bitmapDrawable.bitmap
+    var scale by Delegates.notNull<Float>()
+    if (bitmap.width >= width) {
+        scale = bitmap.width.toFloat() / width.toFloat()
+        height = (bitmap.height / scale).toInt()
+    } else {
+        scale = width.toFloat() / bitmap.width.toFloat()
+        height = (bitmap.height * scale).toInt()
+    }
+    imageView.layoutParams.height = height
+    imageView.setImageDrawable(resource)
 }
