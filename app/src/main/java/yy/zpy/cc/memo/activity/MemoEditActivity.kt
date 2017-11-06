@@ -472,7 +472,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                         ).into(object : SimpleTarget<Drawable>() {
                     override fun onResourceReady(resource: Drawable?, transition: Transition<in Drawable>?) {
-                        adjustImageView(this@MemoEditActivity,imageView, resource)
+                        adjustImageView(this@MemoEditActivity, imageView, resource)
                     }
                 })
                 val currentEditText = ll_root_memo_content.getChildAt(selectEditTextIndex) as EditText
@@ -670,6 +670,7 @@ fun adjustImageView(context: Context, imageView: ImageView, resource: Drawable?)
         scale = width.toFloat() / bitmap.width.toFloat()
         height = (bitmap.height * scale).toInt()
     }
+    logcat("height=" + height.toString())
     imageView.layoutParams.height = height
     imageView.setImageDrawable(resource)
 }

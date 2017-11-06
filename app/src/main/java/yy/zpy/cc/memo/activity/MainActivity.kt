@@ -18,6 +18,7 @@ import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.text.TextUtils
 import android.util.Log
 import android.view.MenuItem
@@ -32,12 +33,10 @@ import com.yalantis.ucrop.UCrop
 import com.zhihu.matisse.Matisse
 import com.zhihu.matisse.MimeType
 import com.zhihu.matisse.internal.entity.CaptureStrategy
-import kotlinx.android.synthetic.main.activity_edit_memo.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main_content.*
 import kotlinx.android.synthetic.main.activity_main_drawer.*
 import kotlinx.android.synthetic.main.content_main.*
-import kotlinx.android.synthetic.main.drawer_header.*
 import org.jetbrains.anko.*
 import permissions.dispatcher.*
 import yy.zpy.cc.greendaolibrary.bean.*
@@ -107,39 +106,60 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
             drawer_layout.closeDrawers()
             folderName = resources.getString(R.string.wastebasket)
             tv_select_folder_name.text = folderName
-            showMemoList(folderName)
+            showMemoList()
             if (View.VISIBLE == fab.visibility && resources.getString(R.string.wastebasket) == folderName) hideFloatingActionButton()
         }
         iv_cancel_memo_operate.setOnClickListener {
             memoBrowseStatus()
         }
-        tv_memo_move.setOnClickListener {
-            folderData.clear()
-            folderData.addAll(getFolderAllData())
-            selectFolderDialog.data = folderData
-            selectFolderDialog.show()
+        tv_memo_move_or_recover.setOnClickListener {
+            if (resources.getString(R.string.wastebasket) == folderName) {
+                val memoDataCheck = memoData.filter {
+                    it.check
+                }
+                memoDataCheck.forEach {
+                    val memoBean = app.memoBeanDao?.load(it.memoBean.id)
+                    memoBean?.folderID?.run {
+                        val folderBean = app.folderBeanDao?.load(memoBean.folderID)
+                        if (folderBean?.deleteTime != 0L) {
+                            folderBean?.deleteTime = 0L
+                            app.folderBeanDao?.update(folderBean)
+                        }
+                    }
+                    memoBean?.deleteTime = 0L
+                    app.memoBeanDao?.update(memoBean)
+                }
+                showMemoList()
+                showDrawerFolderList()
+                memoBrowseStatus()
+            } else {
+                folderData.clear()
+                folderData.addAll(getFolderAllData())
+                selectFolderDialog.data = folderData
+                selectFolderDialog.show()
+            }
         }
         tv_memo_delete.setOnClickListener {
             alert("确定要删除" + tv_select_folder_name.text + "条便签吗？", "删除") {
                 okButton {
-                    try {
-                        memoData.forEach {
-                            if (it.check) {
+                    memoData.forEach {
+                        if (it.check) {
+                            if (resources.getString(R.string.wastebasket) == folderName) {
+                                app.memoBeanDao?.deleteByKey(it.memoBean.id)
+                            } else {
                                 val memoBean = app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.Id.eq(it.memoBean.id))?.unique()
                                 memoBean?.deleteTime = System.currentTimeMillis()
                                 app.memoBeanDao?.update(memoBean)
                             }
                         }
-                        //更新便签列表
-                        showMemoList(folderName)
-                        //更新文件夹列表
-                        folderData.clear()
-                        folderData.addAll(getFolderAllData())
-                        folderAdapter.notifyDataSetChanged()
-                        memoBrowseStatus()
-                    } catch (e: Exception) {
-                        logcat(e.toString())
                     }
+                    //更新便签列表
+                    showMemoList()
+                    //更新文件夹列表
+                    folderData.clear()
+                    folderData.addAll(getFolderAllData())
+                    folderAdapter.notifyDataSetChanged()
+                    memoBrowseStatus()
                 }
                 cancelButton {
 
@@ -157,6 +177,17 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
 
             }
         }
+        rv_memo_list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                logcat(newState.toString())
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    fab.visibility = View.VISIBLE
+                } else {
+                    fab.visibility = View.INVISIBLE
+                }
+            }
+        })
     }
 
     override fun initView() {
@@ -190,7 +221,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
             drawer_layout.closeDrawers()
             folderName = folderData[position].folderBean.name
             tv_select_folder_name.text = folderName
-            showMemoList(folderName)
+            showMemoList()
             if (View.INVISIBLE == fab.visibility && resources.getString(R.string.wastebasket) != folderName) showFloatingActionButton()
         }, { position, _ ->
             val folderBean = folderData[position].folderBean
@@ -265,7 +296,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                                     val memo = memoData[position]
                                     memo.memoBean.deleteTime = 0
                                     app.memoBeanDao?.update(memo.memoBean)
-                                    showMemoList(folderName)
+                                    showMemoList()
                                     showDrawerFolderList()
                                 }
                                 cancelButton {
@@ -322,7 +353,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                 //更新侧边栏adapter
                 showDrawerFolderList()
                 //更新主页便签数据
-                showMemoList(tv_select_folder_name.text.toString())
+                showMemoList()
             }
 
             override fun newFolderClick() {
@@ -422,6 +453,11 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         iv_memo_search.visibility = View.GONE
         ll_memo_operate.visibility = View.VISIBLE
         iv_cancel_memo_operate.visibility = View.VISIBLE
+        if (resources.getString(R.string.wastebasket) == folderName) {
+            tv_memo_move_or_recover.text = "恢复"
+        } else {
+            tv_memo_move_or_recover.text = "移动"
+        }
         drawerToggle.isDrawerIndicatorEnabled = false
         supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.colorActionBarSelect)))
         window.statusBarColor = resources.getColor(R.color.colorStatusBarSelect)
@@ -482,14 +518,14 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
 
     override fun show() {
         showDrawerFolderList()
-        showMemoList(tv_select_folder_name.text.toString())
+        showMemoList()
         val coverPath = app.getSpValue(Constant.SP_COVER_PATH, "")
         Glide.with(this@MainActivity).load(coverPath)
                 .apply(RequestOptions().error(R.drawable.img_drawer_background)
                         .diskCacheStrategy(DiskCacheStrategy.NONE)
                 ).into(object : SimpleTarget<Drawable>() {
             override fun onResourceReady(resource: Drawable?, transition: Transition<in Drawable>?) {
-                adjustImageView(this@MainActivity, iv_cover_image, resource)
+                iv_cover_image.setImageDrawable(resource)
             }
         })
     }
@@ -520,7 +556,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         return data
     }
 
-    fun showMemoList(folderName: String) {
+    fun showMemoList() {
         memoData.clear()
         memoData.addAll(getMemoData(folderName))
         memoAdapter.notifyDataSetChanged()
@@ -666,7 +702,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                         ).into(object : SimpleTarget<Drawable>() {
                     override fun onResourceReady(resource: Drawable?, transition: Transition<in Drawable>?) {
-                        adjustImageView(this@MainActivity, iv_cover_image, resource)
+                        iv_cover_image.setImageDrawable(resource)
                     }
                 })
             } else {
