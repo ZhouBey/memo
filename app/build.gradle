@@ -41,14 +41,17 @@ dependencies {
     //图片选择器
     compile 'com.zhihu.android:matisse:0.4.3'
     //显示图片glide
-    compile 'com.github.bumptech.glide:glide:4.1.1'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.1.1'
+    compile 'com.github.bumptech.glide:glide:4.3.1'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.3.1'
     //6.0+申请权限
     compile("com.github.hotchemi:permissionsdispatcher:3.0.1") {
         // if you don't use android.app.Fragment you can exclude support for them
         exclude module: "support-v13"
     }
-    kapt "com.github.hotchemi:permissionsdispatcher-processor:3.0.1"
+    kapt "com.github.hotchemi:permissionsdispatcher-processor:3.1.0"
     //裁剪图片
     compile 'com.github.yalantis:ucrop:2.2.1'
+    implementation('com.github.niorgai:StatusBarCompat:2.1.4', {
+        exclude group: 'com.android.support'
+    })
 }
