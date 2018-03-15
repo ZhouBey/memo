@@ -5,9 +5,11 @@ import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.graphics.Color
+import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -23,6 +25,9 @@ import android.text.TextUtils
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewTreeObserver
+import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -48,23 +53,36 @@ import yy.zpy.cc.memo.data.Folder
 import yy.zpy.cc.memo.data.Memo
 import yy.zpy.cc.memo.dialog.SelectFolderDialog
 import yy.zpy.cc.memo.interf.IBaseUI
+import yy.zpy.cc.memo.interf.IKeyboardShowChangeListener
 import yy.zpy.cc.memo.logcat
 import yy.zpy.cc.memo.util.Constant
+import yy.zpy.cc.memo.util.Constant.Companion.MIN_KEYBOARD_HEIGHT_PX
 import java.io.File
 import kotlin.properties.Delegates
 
 @RuntimePermissions
 class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSelectedListener {
     override fun getLayout() = R.layout.activity_main
-    var drawerToggle by Delegates.notNull<ActionBarDrawerToggle>()
-    var memoAdapter by Delegates.notNull<MemoAdapter>()
+
+    companion object {
+        const val MEMO_BROWSE_STATUS = 0
+        const val MEMO_OPERATE_STATUS = 1
+        const val MEMO_SEARCH_STATUS = 3
+    }
+
+    private var drawerToggle by Delegates.notNull<ActionBarDrawerToggle>()
+    private var memoAdapter by Delegates.notNull<MemoAdapter>()
     var memoData = mutableListOf<Memo>()
     var folderData = mutableListOf<Folder>()
-    var folderAdapter by Delegates.notNull<FolderAdapter>()
-    var hasBrowseStatus = true
-    var folderName = Constant.ALL_MEMO
+    private var folderAdapter by Delegates.notNull<FolderAdapter>()
+    private var memoStatus = MEMO_BROWSE_STATUS
+    private var folderName = Constant.ALL_MEMO
     var selectFolderDialog by Delegates.notNull<SelectFolderDialog>()
-
+    var keyboardShowChangeListener = KeyboardShowChangeListener()
+    private var decorView: View? = null
+    private var globalListener by Delegates.notNull<ViewTreeObserver.OnGlobalLayoutListener>()
+    private var linearLayoutManager by Delegates.notNull<LinearLayoutManager>()
+    private var dividerItemDecoration by Delegates.notNull<DividerItemDecoration>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -188,9 +206,55 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                 }
             }
         })
+        iv_memo_search.setOnClickListener {
+            memoSearchStatus()
+        }
     }
 
     override fun initView() {
+        initDrawerToggle()
+        tv_select_folder_name.text = folderName
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
+        linearLayoutManager = LinearLayoutManager(this)
+        dividerItemDecoration = DividerItemDecoration(this, linearLayoutManager.orientation)
+        dividerItemDecoration.setDrawable(resources.getDrawable(R.drawable.divider_item_decoration, theme))
+        initRecyclerViewDrawFolder()
+        initRecyclerViewMemo()
+        initSelectFolderDialog()
+        memoBrowseStatus()
+        decorView = window.decorView
+        initGlobalLayoutListener()
+        decorView?.viewTreeObserver?.addOnGlobalLayoutListener(globalListener)
+        fab.rippleColor = Color.parseColor("#E1E1E1")
+        doAsync {
+            Thread.sleep(500)
+            uiThread {
+                if (View.INVISIBLE == fab.visibility && resources.getString(R.string.wastebasket) != folderName) showFloatingActionButton()
+            }
+        }
+    }
+
+    private fun initGlobalLayoutListener(){
+        globalListener = object : ViewTreeObserver.OnGlobalLayoutListener {
+            private val windowVisibleDisplayFrame = Rect()
+            private var lastVisibleDecorViewHeight: Int = 0
+
+            override fun onGlobalLayout() {
+                decorView?.getWindowVisibleDisplayFrame(windowVisibleDisplayFrame)
+                val visibleDecorViewHeight = windowVisibleDisplayFrame.height()
+                if (lastVisibleDecorViewHeight != 0) {
+                    if (lastVisibleDecorViewHeight > visibleDecorViewHeight + MIN_KEYBOARD_HEIGHT_PX) {
+                        keyboardShowChangeListener.keyboardShow()
+                    } else if (lastVisibleDecorViewHeight + MIN_KEYBOARD_HEIGHT_PX < visibleDecorViewHeight) {
+                        keyboardShowChangeListener.keyboardHidden()
+                    }
+                }
+                lastVisibleDecorViewHeight = visibleDecorViewHeight
+            }
+        }
+    }
+
+    private fun initDrawerToggle() {
         drawerToggle = object : ActionBarDrawerToggle(
                 this,
                 drawer_layout,
@@ -212,11 +276,9 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         }
         drawer_layout.setDrawerListener(drawerToggle)
         drawerToggle.isDrawerIndicatorEnabled = true
-        tv_select_folder_name.text = folderName
-        val linearLayoutManager = LinearLayoutManager(this)
-        val dividerItemDecoration = DividerItemDecoration(this, linearLayoutManager.orientation)
-        dividerItemDecoration.setDrawable(resources.getDrawable(R.drawable.divider_item_decoration, theme))
-        rv_drawer_folder.layoutManager = linearLayoutManager
+    }
+
+    private fun initRecyclerViewDrawFolder() {
         folderAdapter = FolderAdapter(folderData, false, { position, type ->
             drawer_layout.closeDrawers()
             folderName = folderData[position].folderBean.name
@@ -285,11 +347,15 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
 
             }
         })
+        rv_drawer_folder.layoutManager = linearLayoutManager
         rv_drawer_folder.addItemDecoration(dividerItemDecoration)
         rv_drawer_folder.adapter = folderAdapter
+    }
+
+    private fun initRecyclerViewMemo(){
         memoAdapter = MemoAdapter(memoData,
                 { position, _ ->
-                    if (hasBrowseStatus) {
+                    if (MEMO_BROWSE_STATUS == memoStatus || MEMO_SEARCH_STATUS == memoStatus) {
                         if (resources.getString(R.string.wastebasket) == folderName) {
                             alert("恢复这条便签？") {
                                 okButton {
@@ -314,7 +380,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                     }
                 },
                 { position, _ ->
-                    if (hasBrowseStatus) {
+                    if (MEMO_BROWSE_STATUS == memoStatus || MEMO_SEARCH_STATUS == memoStatus) {
                         memoOperateStatus()
                     }
                     memoAdapterNotifyDataSetChanged(position)
@@ -322,19 +388,9 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         rv_memo_list.layoutManager = LinearLayoutManager(this@MainActivity)
         rv_memo_list.adapter = memoAdapter
         rv_memo_list.addItemDecoration(dividerItemDecoration)
-        initSelectFolderDialog()
-
-
-        fab.rippleColor = Color.parseColor("#E1E1E1")
-        doAsync {
-            Thread.sleep(500)
-            uiThread {
-                if (View.INVISIBLE == fab.visibility && resources.getString(R.string.wastebasket) != folderName) showFloatingActionButton()
-            }
-        }
     }
 
-    fun initSelectFolderDialog() {
+    private fun initSelectFolderDialog() {
         selectFolderDialog = SelectFolderDialog(this, R.style.WhiteDialog)
         selectFolderDialog.onClickListener = object : SelectFolderDialog.OnClickListener {
             override fun itemClick(position: Int, type: Int) {
@@ -413,7 +469,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         }.show()
     }
 
-    fun memoAdapterNotifyDataSetChanged(position: Int) {
+    private fun memoAdapterNotifyDataSetChanged(position: Int) {
         memoData[position].check = !memoData[position].check
         memoAdapter.notifyDataSetChanged()
         var count = 0
@@ -430,11 +486,11 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
     }
 
     fun memoBrowseStatus() {
-        hasBrowseStatus = true
-        invalidateOptionsMenu()
+        memoStatus = MEMO_BROWSE_STATUS
         iv_memo_search.visibility = View.VISIBLE
         ll_memo_operate.visibility = View.GONE
         iv_cancel_memo_operate.visibility = View.GONE
+        et_search_content.visibility = View.GONE
         drawerToggle.isDrawerIndicatorEnabled = true
         supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.colorPrimary)))
         window.statusBarColor = resources.getColor(R.color.colorPrimaryDark)
@@ -443,16 +499,29 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
             it.check = false
         }
         memoAdapter.notifyDataSetChanged()
+        tv_select_folder_name.visibility = View.VISIBLE
         tv_select_folder_name.text = folderName
         if (View.INVISIBLE == fab.visibility && resources.getString(R.string.wastebasket) != folderName) showFloatingActionButton()
+        hideKeyboard(et_search_content)
     }
 
-    fun memoOperateStatus() {
-        hasBrowseStatus = false
-        invalidateOptionsMenu()
+    private fun memoSearchStatus() {
+        memoStatus = MEMO_SEARCH_STATUS
+        drawerToggle.isDrawerIndicatorEnabled = false
+        et_search_content.visibility = View.VISIBLE
+        iv_memo_search.visibility = View.GONE
+        ll_memo_operate.visibility = View.GONE
+        tv_select_folder_name.visibility = View.GONE
+        iv_cancel_memo_operate.visibility = View.VISIBLE
+        showKeyboard(et_search_content)
+    }
+
+    private fun memoOperateStatus() {
+        memoStatus = MEMO_OPERATE_STATUS
         iv_memo_search.visibility = View.GONE
         ll_memo_operate.visibility = View.VISIBLE
         iv_cancel_memo_operate.visibility = View.VISIBLE
+        et_search_content.visibility = View.GONE
         if (resources.getString(R.string.wastebasket) == folderName) {
             tv_memo_move_or_recover.text = "恢复"
         } else {
@@ -465,7 +534,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         if (View.VISIBLE == fab.visibility && resources.getString(R.string.wastebasket) == folderName) hideFloatingActionButton()
     }
 
-    fun showFloatingActionButton() {
+    private fun showFloatingActionButton() {
         val objectAnimatorY = ObjectAnimator.ofFloat(fab, "scaleY", 0f, 0.3f, 0.5f, 0.7f, 1.0f)
         val objectAnimatorX = ObjectAnimator.ofFloat(fab, "scaleX", 0f, 0.3f, 0.5f, 0.7f, 1.0f)
         val animatorSet = AnimatorSet()
@@ -490,7 +559,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         animatorSet.start()
     }
 
-    fun hideFloatingActionButton() {
+    private fun hideFloatingActionButton() {
         val objectAnimatorY = ObjectAnimator.ofFloat(fab, "scaleY", 1f, 0.7f, 0.5f, 0.3f, 0f)
         val objectAnimatorX = ObjectAnimator.ofFloat(fab, "scaleX", 1f, 0.7f, 0.5f, 0.3f, 0f)
         val animatorSet = AnimatorSet()
@@ -524,10 +593,10 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                 .apply(RequestOptions().error(R.drawable.img_drawer_background)
                         .diskCacheStrategy(DiskCacheStrategy.NONE)
                 ).into(object : SimpleTarget<Drawable>() {
-            override fun onResourceReady(resource: Drawable?, transition: Transition<in Drawable>?) {
-                iv_cover_image.setImageDrawable(resource)
-            }
-        })
+                    override fun onResourceReady(resource: Drawable?, transition: Transition<in Drawable>?) {
+                        iv_cover_image.setImageDrawable(resource)
+                    }
+                })
     }
 
     fun showDrawerFolderList() {
@@ -536,7 +605,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         folderAdapter.notifyDataSetChanged()
     }
 
-    fun getFolderAllData(): MutableList<Folder> {
+    private fun getFolderAllData(): MutableList<Folder> {
         val folders = app.folderBeanDao?.queryBuilder()?.where(FolderBeanDao.Properties.DeleteTime.eq(0))?.list()
         val data = mutableListOf<Folder>()
         folders?.forEach {
@@ -578,14 +647,14 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
             drawer_layout.closeDrawers()
             return
         }
-        if (!hasBrowseStatus) {
+        if (MEMO_BROWSE_STATUS != memoStatus) {
             memoBrowseStatus()
             return
         }
         super.onBackPressed()
     }
 
-    fun getMemoData(folderName: String): MutableList<Memo> {
+    private fun getMemoData(folderName: String): MutableList<Memo> {
         val data = mutableListOf<MemoBean>()
         if (Constant.ALL_MEMO == folderName) {
             val allMemo = app.memoBeanDao?.queryBuilder()
@@ -701,14 +770,40 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                         .apply(RequestOptions().error(R.drawable.img_drawer_background)
                                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                         ).into(object : SimpleTarget<Drawable>() {
-                    override fun onResourceReady(resource: Drawable?, transition: Transition<in Drawable>?) {
-                        iv_cover_image.setImageDrawable(resource)
-                    }
-                })
+                            override fun onResourceReady(resource: Drawable?, transition: Transition<in Drawable>?) {
+                                iv_cover_image.setImageDrawable(resource)
+                            }
+                        })
             } else {
                 logcat("data is null")
             }
         }
     }
 
+    inner class KeyboardShowChangeListener : IKeyboardShowChangeListener {
+        override fun keyboardShow() {
+            memoSearchStatus()
+        }
+
+        override fun keyboardHidden() {
+            memoBrowseStatus()
+        }
+    }
+}
+
+fun showKeyboard(view: View) {
+    view.requestFocus()
+    val systemService = view.context.getSystemService(Context.INPUT_METHOD_SERVICE)
+    systemService?.let {
+        val inputManager = it as InputMethodManager
+        inputManager.showSoftInput(view, 0)
+    }
+}
+
+fun hideKeyboard(view: View) {
+    val systemService = view.context.getSystemService(Context.INPUT_METHOD_SERVICE)
+    systemService?.let {
+        val imm = it as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
 }

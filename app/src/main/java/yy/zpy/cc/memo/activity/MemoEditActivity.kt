@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
@@ -52,6 +51,7 @@ import yy.zpy.cc.memo.interf.IBaseUI
 import yy.zpy.cc.memo.interf.IKeyboardShowChangeListener
 import yy.zpy.cc.memo.logcat
 import yy.zpy.cc.memo.util.Constant
+import yy.zpy.cc.memo.util.Constant.Companion.MIN_KEYBOARD_HEIGHT_PX
 import yy.zpy.cc.memo.widget.ImageViewWithDel
 import yy.zpy.cc.memo.widget.OnDeleteClickListener
 import java.io.File
@@ -69,7 +69,6 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     var lockStatus = false
     var keyboardShowChangeListener = KeyboardShowChangeListener()
     var globalListener by Delegates.notNull<ViewTreeObserver.OnGlobalLayoutListener>()
-    private val MIN_KEYBOARD_HEIGHT_PX = 150
     var decorView: View? = null
     var selectFolderDialog by Delegates.notNull<SelectFolderDialog>()
     var isFinish = false
@@ -161,7 +160,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         }
     }
 
-    fun deleteMemo(memoBeanID: Long) {
+    private fun deleteMemo(memoBeanID: Long) {
         val memoBean = app.memoBeanDao?.load(memoBeanID)
         memoBean?.deleteTime = System.currentTimeMillis()
         app.memoBeanDao?.update(memoBean)

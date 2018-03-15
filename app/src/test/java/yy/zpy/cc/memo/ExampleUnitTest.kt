@@ -10,12 +10,15 @@ import org.junit.Test
 class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
-        var data = (0..10).toList()
-        data = data.filter {
-            it > 4
+        val list = mutableListOf(1, 4, 3, 8)
+        var flag = false
+        list.forEach {
+            println(it.toString())
+            flag = it > 5
+            if (flag) {
+                return@forEach
+            }
         }
-        data.forEach {
-            println(it)
-        }
+        println("flag=" + flag.toString())
     }
 }
