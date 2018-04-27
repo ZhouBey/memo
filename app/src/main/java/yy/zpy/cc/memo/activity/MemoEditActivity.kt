@@ -240,7 +240,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             }
         }
         tv_select_fold.text = folderName
-        folderDataList.forEach continuing@ {
+        folderDataList.forEach continuing@{
             if (it.folderBean.name == folderName) {
                 it.check = true
                 selectFolderID = it.folderBean.id
@@ -277,17 +277,17 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                             .apply(RequestOptions().error(R.drawable.img_error)
                                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                             ).into(object : SimpleTarget<Drawable>() {
-                        override fun onResourceReady(resource: Drawable?, transition: Transition<in Drawable>?) {
-                            adjustImageView(this@MemoEditActivity, imageView, resource)
-                        }
+                                override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                                    adjustImageView(this@MemoEditActivity, imageView, resource)
+                                }
 
-                        override fun onLoadFailed(errorDrawable: Drawable?) {
-                            super.onLoadFailed(errorDrawable)
-                            imageView.layoutParams.width = matchParent
-                            imageView.layoutParams.height = dip(130)
-                            imageView.setImageDrawable(errorDrawable)
-                        }
-                    })
+                                override fun onLoadFailed(errorDrawable: Drawable?) {
+                                    super.onLoadFailed(errorDrawable)
+                                    imageView.layoutParams.width = matchParent
+                                    imageView.layoutParams.height = dip(130)
+                                    imageView.setImageDrawable(errorDrawable)
+                                }
+                            })
                     ll_root_memo_content.addView(imageView)
                     isFirst = false
                 }
@@ -470,10 +470,10 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                         .apply(RequestOptions().error(R.drawable.img_error)
                                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                         ).into(object : SimpleTarget<Drawable>() {
-                    override fun onResourceReady(resource: Drawable?, transition: Transition<in Drawable>?) {
-                        adjustImageView(this@MemoEditActivity, imageView, resource)
-                    }
-                })
+                            override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                                adjustImageView(this@MemoEditActivity, imageView, resource)
+                            }
+                        })
                 val currentEditText = ll_root_memo_content.getChildAt(selectEditTextIndex) as EditText
                 if (TextUtils.isEmpty(currentEditText.text.trim())) {
                     ll_root_memo_content.removeView(currentEditText)

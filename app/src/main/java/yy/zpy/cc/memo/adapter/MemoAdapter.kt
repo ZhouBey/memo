@@ -21,10 +21,8 @@ import java.util.regex.Pattern
  */
 class MemoAdapter(val data: List<Memo>, var itemClickBlock: (position: Int, type: Int) -> Unit,
                   var itemLongClickBlock: (position: Int, type: Int) -> Unit) : RecyclerView.Adapter<MemoAdapter.ViewHolder>() {
-
-    var hasSelect = false
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
-        val viewHolder = ViewHolder(parent?.inflate(R.layout.layout_memo_list_item))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val viewHolder = ViewHolder(parent.inflate(R.layout.layout_memo_list_item))
         viewHolder.itemClickListen { position, type ->
             itemClickBlock(position, type)
         }
@@ -34,11 +32,13 @@ class MemoAdapter(val data: List<Memo>, var itemClickBlock: (position: Int, type
         return viewHolder
     }
 
-    override fun getItemCount() = data.size
-
-    override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
-        holder?.bind(position)
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(position)
     }
+
+    var hasSelect = false
+
+    override fun getItemCount() = data.size
 
     inner class ViewHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
         fun bind(position: Int) = with(itemView) {

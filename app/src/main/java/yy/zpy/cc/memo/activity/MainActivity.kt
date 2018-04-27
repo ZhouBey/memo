@@ -21,7 +21,9 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.text.Editable
 import android.text.TextUtils
+import android.text.TextWatcher
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
@@ -209,6 +211,22 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         iv_memo_search.setOnClickListener {
             memoSearchStatus()
         }
+        et_search_content.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                s?.let {
+                    memoData.clear()
+                    memoData.addAll(getMemoData(folderName, it.toString()))
+                    memoAdapter.notifyDataSetChanged()
+                }
+            }
+        })
     }
 
     override fun initView() {
@@ -234,7 +252,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         }
     }
 
-    private fun initGlobalLayoutListener(){
+    private fun initGlobalLayoutListener() {
         globalListener = object : ViewTreeObserver.OnGlobalLayoutListener {
             private val windowVisibleDisplayFrame = Rect()
             private var lastVisibleDecorViewHeight: Int = 0
@@ -274,12 +292,12 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                 invalidateOptionsMenu()
             }
         }
-        drawer_layout.setDrawerListener(drawerToggle)
+        drawer_layout.addDrawerListener(drawerToggle)
         drawerToggle.isDrawerIndicatorEnabled = true
     }
 
     private fun initRecyclerViewDrawFolder() {
-        folderAdapter = FolderAdapter(folderData, false, { position, type ->
+        folderAdapter = FolderAdapter(folderData, false, { position, _ ->
             drawer_layout.closeDrawers()
             folderName = folderData[position].folderBean.name
             tv_select_folder_name.text = folderName
@@ -352,7 +370,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         rv_drawer_folder.adapter = folderAdapter
     }
 
-    private fun initRecyclerViewMemo(){
+    private fun initRecyclerViewMemo() {
         memoAdapter = MemoAdapter(memoData,
                 { position, _ ->
                     if (MEMO_BROWSE_STATUS == memoStatus || MEMO_SEARCH_STATUS == memoStatus) {
@@ -593,7 +611,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                 .apply(RequestOptions().error(R.drawable.img_drawer_background)
                         .diskCacheStrategy(DiskCacheStrategy.NONE)
                 ).into(object : SimpleTarget<Drawable>() {
-                    override fun onResourceReady(resource: Drawable?, transition: Transition<in Drawable>?) {
+                    override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
                         iv_cover_image.setImageDrawable(resource)
                     }
                 })
@@ -654,34 +672,60 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         super.onBackPressed()
     }
 
-    private fun getMemoData(folderName: String): MutableList<Memo> {
+    private fun getMemoData(folderName: String, keyword: String = ""): MutableList<Memo> {
+        logcat(keyword)
         val data = mutableListOf<MemoBean>()
         if (Constant.ALL_MEMO == folderName) {
-            val allMemo = app.memoBeanDao?.queryBuilder()
-                    ?.where(MemoBeanDao.Properties.DeleteTime.eq(0))
-                    ?.orderDesc(MemoBeanDao.Properties.CreateTime)
-                    ?.list()
+            val allMemo = if (TextUtils.isEmpty(keyword)) {
+                app.memoBeanDao?.queryBuilder()
+                        ?.where(MemoBeanDao.Properties.DeleteTime.eq(0))
+                        ?.orderDesc(MemoBeanDao.Properties.CreateTime)
+                        ?.list()
+            } else {
+                app.memoBeanDao?.queryBuilder()
+                        ?.where(MemoBeanDao.Properties.DeleteTime.eq(0))
+                        ?.where(MemoBeanDao.Properties.Content.like(keyword))
+                        ?.orderDesc(MemoBeanDao.Properties.CreateTime)
+                        ?.list()
+            }
             allMemo?.let { data.addAll(allMemo) }
         } else if (resources.getString(R.string.wastebasket) == folderName) {
-            val deleteMemo = app.memoBeanDao?.queryBuilder()
-                    ?.where(MemoBeanDao.Properties.DeleteTime.notEq(0))
-                    ?.list()
+            val deleteMemo = if (TextUtils.isEmpty(keyword)) {
+                app.memoBeanDao?.queryBuilder()
+                        ?.where(MemoBeanDao.Properties.DeleteTime.notEq(0))
+                        ?.orderDesc(MemoBeanDao.Properties.DeleteTime)
+                        ?.list()
+            } else {
+                app.memoBeanDao?.queryBuilder()
+                        ?.where(MemoBeanDao.Properties.DeleteTime.notEq(0))
+                        ?.where(MemoBeanDao.Properties.Content.like(keyword))
+                        ?.orderDesc(MemoBeanDao.Properties.DeleteTime)
+                        ?.list()
+            }
             deleteMemo?.let { data.addAll(deleteMemo) }
         } else {
             val folder = app.folderBeanDao?.queryBuilder()?.where(FolderBeanDao.Properties.Name.eq(folderName))?.list()
             if (folder != null && folder.size != 0) {
-                val result = app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.FolderID.eq(folder[0].id))
-                        ?.where(MemoBeanDao.Properties.DeleteTime.eq(0))
-                        ?.orderDesc(MemoBeanDao.Properties.CreateTime)
-                        ?.list()
+                val result = if (TextUtils.isEmpty(keyword)) {
+                    app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.FolderID.eq(folder[0].id))
+                            ?.where(MemoBeanDao.Properties.DeleteTime.eq(0))
+                            ?.orderDesc(MemoBeanDao.Properties.CreateTime)
+                            ?.list()
+                } else {
+                    app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.FolderID.eq(folder[0].id))
+                            ?.where(MemoBeanDao.Properties.DeleteTime.eq(0))
+                            ?.where(MemoBeanDao.Properties.Content.like("%$keyword%"))
+                            ?.orderDesc(MemoBeanDao.Properties.CreateTime)
+                            ?.list()
+                }
                 result?.let { data.addAll(result) }
             }
         }
         val result = mutableListOf<Memo>()
         data.forEach {
+            logcat(it.content)
             val memo = Memo()
             memo.memoBean = it
-            logcat(it.deleteTime)
             result.add(memo)
         }
         return result
@@ -770,7 +814,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                         .apply(RequestOptions().error(R.drawable.img_drawer_background)
                                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                         ).into(object : SimpleTarget<Drawable>() {
-                            override fun onResourceReady(resource: Drawable?, transition: Transition<in Drawable>?) {
+                            override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
                                 iv_cover_image.setImageDrawable(resource)
                             }
                         })
