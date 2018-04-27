@@ -130,6 +130,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
             if (View.VISIBLE == fab.visibility && resources.getString(R.string.wastebasket) == folderName) hideFloatingActionButton()
         }
         iv_cancel_memo_operate.setOnClickListener {
+            et_search_content.setText("")
             memoBrowseStatus()
         }
         tv_memo_move_or_recover.setOnClickListener {
@@ -629,10 +630,10 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         folders?.forEach {
             val folder = Folder()
             val list: MutableList<MemoBean>?
-            if (Constant.ALL_MEMO == it.name) {
-                list = app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.DeleteTime.eq(0))?.list()
+            list = if (Constant.ALL_MEMO == it.name) {
+                app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.DeleteTime.eq(0))?.list()
             } else {
-                list = app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.FolderID.eq(it.id))?.where(MemoBeanDao.Properties.DeleteTime.eq(0))?.list()
+                app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.FolderID.eq(it.id))?.where(MemoBeanDao.Properties.DeleteTime.eq(0))?.list()
             }
             val size = list?.size ?: 0
             folder.folderBean.id = it.id
@@ -684,7 +685,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
             } else {
                 app.memoBeanDao?.queryBuilder()
                         ?.where(MemoBeanDao.Properties.DeleteTime.eq(0))
-                        ?.where(MemoBeanDao.Properties.Content.like(keyword))
+                        ?.where(MemoBeanDao.Properties.Content.like("%$keyword%"))
                         ?.orderDesc(MemoBeanDao.Properties.CreateTime)
                         ?.list()
             }
@@ -698,7 +699,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
             } else {
                 app.memoBeanDao?.queryBuilder()
                         ?.where(MemoBeanDao.Properties.DeleteTime.notEq(0))
-                        ?.where(MemoBeanDao.Properties.Content.like(keyword))
+                        ?.where(MemoBeanDao.Properties.Content.like("%$keyword%"))
                         ?.orderDesc(MemoBeanDao.Properties.DeleteTime)
                         ?.list()
             }
@@ -830,7 +831,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         }
 
         override fun keyboardHidden() {
-            memoBrowseStatus()
+//            memoBrowseStatus()
         }
     }
 }
