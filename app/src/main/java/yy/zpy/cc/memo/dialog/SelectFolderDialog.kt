@@ -6,8 +6,10 @@ import android.os.Bundle
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Gravity
+import android.widget.LinearLayout
 import kotlinx.android.synthetic.main.dialog_select_dialog.*
 import org.jetbrains.anko.dip
+import org.jetbrains.anko.wrapContent
 import yy.zpy.cc.memo.R
 import yy.zpy.cc.memo.adapter.FolderAdapter
 import yy.zpy.cc.memo.data.Folder
@@ -42,6 +44,12 @@ class SelectFolderDialog(context: Context, themeResId: Int) : Dialog(context, th
         rv_dialog_folder.addItemDecoration(dividerItemDecoration)
         tv_new_folder.setOnClickListener {
             onClickListener?.newFolderClick()
+        }
+        val layoutParams = rv_dialog_folder.layoutParams as LinearLayout.LayoutParams
+        if (data.size > 4) {
+            layoutParams.height = context.dip(200)
+        } else {
+            layoutParams.height = wrapContent
         }
     }
 

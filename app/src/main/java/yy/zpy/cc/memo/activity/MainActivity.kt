@@ -24,7 +24,6 @@ import android.support.v7.widget.RecyclerView
 import android.text.Editable
 import android.text.TextUtils
 import android.text.TextWatcher
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewTreeObserver
@@ -47,6 +46,7 @@ import kotlinx.android.synthetic.main.content_main.*
 import org.jetbrains.anko.*
 import permissions.dispatcher.*
 import yy.zpy.cc.greendaolibrary.bean.*
+import yy.zpy.cc.memo.App
 import yy.zpy.cc.memo.R
 import yy.zpy.cc.memo.adapter.FolderAdapter
 import yy.zpy.cc.memo.adapter.MemoAdapter
@@ -282,13 +282,11 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                 R.string.close
         ) {
             override fun onDrawerClosed(view: View) {
-                Log.d("MainActivity", "OnDrawerClosed")
                 super.onDrawerClosed(view)
                 invalidateOptionsMenu()
             }
 
             override fun onDrawerOpened(drawerView: View) {
-                Log.d("MainActivity", "OnDrawerOpened")
                 super.onDrawerOpened(drawerView)
                 invalidateOptionsMenu()
             }
@@ -624,26 +622,6 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         folderAdapter.notifyDataSetChanged()
     }
 
-    private fun getFolderAllData(): MutableList<Folder> {
-        val folders = app.folderBeanDao?.queryBuilder()?.where(FolderBeanDao.Properties.DeleteTime.eq(0))?.list()
-        val data = mutableListOf<Folder>()
-        folders?.forEach {
-            val folder = Folder()
-            val list: MutableList<MemoBean>?
-            list = if (Constant.ALL_MEMO == it.name) {
-                app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.DeleteTime.eq(0))?.list()
-            } else {
-                app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.FolderID.eq(it.id))?.where(MemoBeanDao.Properties.DeleteTime.eq(0))?.list()
-            }
-            val size = list?.size ?: 0
-            folder.folderBean.id = it.id
-            folder.folderBean.name = it.name
-            folder.count = size
-            data.add(folder)
-        }
-        return data
-    }
-
     fun showMemoList() {
         memoData.clear()
         memoData.addAll(getMemoData(folderName))
@@ -674,7 +652,6 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
     }
 
     private fun getMemoData(folderName: String, keyword: String = ""): MutableList<Memo> {
-        logcat(keyword)
         val data = mutableListOf<MemoBean>()
         if (Constant.ALL_MEMO == folderName) {
             val allMemo = if (TextUtils.isEmpty(keyword)) {
@@ -724,7 +701,6 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         }
         val result = mutableListOf<Memo>()
         data.forEach {
-            logcat(it.content)
             val memo = Memo()
             memo.memoBean = it
             result.add(memo)
@@ -851,4 +827,24 @@ fun hideKeyboard(view: View) {
         val imm = it as InputMethodManager
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
+}
+
+fun getFolderAllData(): MutableList<Folder> {
+    val app = App.instance
+    val folders = app.folderBeanDao?.queryBuilder()?.where(FolderBeanDao.Properties.DeleteTime.eq(0))?.list()
+    val data = mutableListOf<Folder>()
+    folders?.forEach {
+        val folder = Folder()
+        val list: MutableList<MemoBean>? = if (Constant.ALL_MEMO == it.name) {
+            app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.DeleteTime.eq(0))?.list()
+        } else {
+            app.memoBeanDao?.queryBuilder()?.where(MemoBeanDao.Properties.FolderID.eq(it.id))?.where(MemoBeanDao.Properties.DeleteTime.eq(0))?.list()
+        }
+        val size = list?.size ?: 0
+        folder.folderBean.id = it.id
+        folder.folderBean.name = it.name
+        folder.count = size
+        data.add(folder)
+    }
+    return data
 }

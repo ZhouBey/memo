@@ -212,11 +212,11 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             memoBeanID = memoBean?.id ?: -1L
             logcat(memoBean.toString())
         }
-        val folderBeanList = app.folderBeanDao?.loadAll()
-        folderBeanList?.forEach {
+        val folderBeanList = getFolderAllData()
+        folderBeanList.forEach {
             val folder = Folder()
-            folder.folderBean.name = it.name
-            folder.folderBean.id = it.id
+            folder.folderBean.name = it.folderBean.name
+            folder.folderBean.id = it.folderBean.id
             folderDataList.add(folder)
         }
         var folderName by Delegates.notNull<String>()
