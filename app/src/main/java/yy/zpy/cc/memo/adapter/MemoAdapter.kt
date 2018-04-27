@@ -19,8 +19,8 @@ import java.util.regex.Pattern
 /**
  * Created by zpy on 2017/10/10.
  */
-class MemoAdapter(val data: List<Memo>, var itemClickBlock: (position: Int, type: Int) -> Unit,
-                  var itemLongClickBlock: (position: Int, type: Int) -> Unit) : RecyclerView.Adapter<MemoAdapter.ViewHolder>() {
+class MemoAdapter(val data: List<Memo>, private var itemClickBlock: (position: Int, type: Int) -> Unit,
+                  private var itemLongClickBlock: (position: Int, type: Int) -> Unit, private var needYear: Boolean = false) : RecyclerView.Adapter<MemoAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val viewHolder = ViewHolder(parent.inflate(R.layout.layout_memo_list_item))
         viewHolder.itemClickListen { position, type ->
@@ -53,7 +53,11 @@ class MemoAdapter(val data: List<Memo>, var itemClickBlock: (position: Int, type
             time.timeInMillis = item.memoBean.createTime
             val dateDesc = getDateDesc(time)
             if (TextUtils.isEmpty(dateDesc)) {
-                tv_item_time.text = DateFormat.format("MM月dd日 HH:mm", time).toString()
+                if (needYear) {
+                    tv_item_time.text = DateFormat.format("yyyy年MM月dd日 HH:mm", time).toString()
+                } else {
+                    tv_item_time.text = DateFormat.format("MM月dd日 HH:mm", time).toString()
+                }
             } else {
                 tv_item_time.text = String.format("%s%s", dateDesc, DateFormat.format("HH:mm", time).toString())
             }

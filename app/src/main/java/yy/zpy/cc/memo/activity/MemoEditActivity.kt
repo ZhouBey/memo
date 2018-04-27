@@ -234,7 +234,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             calendar.timeInMillis = memoBean?.createTime ?: System.currentTimeMillis()
             val dateDesc = getDateDesc(calendar)
             if (TextUtils.isEmpty(dateDesc)) {
-                tv_memo_time.text = DateFormat.format("MM月dd日 HH:mm", calendar).toString()
+                tv_memo_time.text = DateFormat.format("yyyy年MM月dd日 HH:mm", calendar).toString()
             } else {
                 tv_memo_time.text = String.format("%s%s", dateDesc, DateFormat.format("HH:mm", calendar).toString())
             }

@@ -87,8 +87,8 @@
             android:background="?android:attr/selectableItemBackground"
             android:focusable="true"
             android:orientation="horizontal"
-            android:paddingLeft="7dp"
-            android:paddingRight="7dp">
+            android:paddingStart="7dp"
+            android:paddingEnd="4dp">
 
             <TextView
                 android:id="@+id/tv_select_fold"
@@ -114,7 +114,8 @@
             android:layout_centerVertical="true"
             android:layout_marginEnd="20dp"
             android:layout_toStartOf="@id/ll_select_fold"
-            android:src="@drawable/bg_memo_lock_status" />
+            android:src="@drawable/bg_memo_lock_status"
+            android:visibility="gone" />
 
 
     </RelativeLayout>
@@ -134,10 +135,10 @@
             android:id="@+id/ll_root_memo_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
             android:orientation="vertical"
             android:paddingLeft="15dp"
-            android:paddingRight="15dp"
-            android:gravity="center_horizontal"/>
+            android:paddingRight="15dp" />
     </ScrollView>
 
 
