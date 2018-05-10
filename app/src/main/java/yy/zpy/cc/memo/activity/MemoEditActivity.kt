@@ -118,6 +118,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
 
     override fun viewListener() {
         ib_back.setOnClickListener {
+            hideKeyboard()
             this@MemoEditActivity.finish()
         }
         iv_lock_status.setOnClickListener {
