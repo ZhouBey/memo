@@ -136,6 +136,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                     toast("内容不能为空")
                     return@setOnClickListener
                 }
+                startActivity<PreviewMemoActivity>("memoContent" to memoContent)
             } else {
                 finishStatus()
                 hideKeyboard()
@@ -306,24 +307,6 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         val editText = getEditText()
         editText.isCursorVisible = false
         ll_root_memo_content.addView(editText)
-    }
-
-    fun cutStringByImgTag(content: String): List<String> {
-        val splitTextList = mutableListOf<String>()
-        val pattern = Pattern.compile(Constant.REGEX_IMAGE_TAG)
-        val matcher = pattern.matcher(content)
-        var lastIndex = 0
-        while (matcher.find()) {
-            if (matcher.start() > lastIndex) {
-                splitTextList.add(content.substring(lastIndex, matcher.start()))
-            }
-            splitTextList.add(content.substring(matcher.start(), matcher.end()))
-            lastIndex = matcher.end()
-        }
-        if (lastIndex != content.length) {
-            splitTextList.add(content.substring(lastIndex, content.length))
-        }
-        return splitTextList
     }
 
     fun initSelectFolderDialog() {
@@ -673,4 +656,22 @@ fun adjustImageView(context: Context, imageView: ImageView, resource: Drawable?)
     logcat("height=" + height.toString())
     imageView.layoutParams.height = height
     imageView.setImageDrawable(resource)
+}
+
+fun cutStringByImgTag(content: String): List<String> {
+    val splitTextList = mutableListOf<String>()
+    val pattern = Pattern.compile(Constant.REGEX_IMAGE_TAG)
+    val matcher = pattern.matcher(content)
+    var lastIndex = 0
+    while (matcher.find()) {
+        if (matcher.start() > lastIndex) {
+            splitTextList.add(content.substring(lastIndex, matcher.start()))
+        }
+        splitTextList.add(content.substring(matcher.start(), matcher.end()))
+        lastIndex = matcher.end()
+    }
+    if (lastIndex != content.length) {
+        splitTextList.add(content.substring(lastIndex, content.length))
+    }
+    return splitTextList
 }
