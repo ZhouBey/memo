@@ -36,13 +36,13 @@ import kotlin.properties.Delegates
 class PreviewMemoActivity : BaseActivity(), IBaseUI {
     companion object {
         const val DEFAULT_FONT_SIZE = 14F
+        const val DEFAULT_LINE_HEIGHT = 10F
     }
 
     override fun getLayout(): Int = R.layout.activity_memo_preview
     private var memoBeanId: Long? = null
     private var memoBean: MemoBean? = null
     private var previewMemoSettingDialog: PreviewMemoSettingDialog by Delegates.notNull()
-    private var textWatcher: TextWatcher? = null
     override fun initView() {
         memoBeanId = intent.getLongExtra("memoBeanID", -1L)
         memoBean = app.memoBeanDao?.load(memoBeanId)
@@ -61,7 +61,7 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
         previewMemoSettingDialog.memoFontSizeSettingListener = object : PreviewMemoSettingDialog.IMemoFontSizeSettingListener {
             override fun onFontSizeAdd() {
                 val textSize = memoBean?.fontSize ?: DEFAULT_FONT_SIZE
-                if (textSize < 20) {
+                if (textSize < 18) {
                     val newTextSize = textSize.plus(1F)
                     memoBean?.fontSize = newTextSize
                     setMemoFontSize(newTextSize)
@@ -77,6 +77,26 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
                 }
             }
         }
+        previewMemoSettingDialog.memoLineHeightSettingListener = object : PreviewMemoSettingDialog.IMemoLineHeightSettingListener {
+            override fun onLineHeightAdd() {
+                val lineHeight = memoBean?.lineHeight?: DEFAULT_LINE_HEIGHT
+                if(lineHeight < 20){
+                    val newLineHeight = lineHeight.plus(1F)
+                    memoBean?.lineHeight = newLineHeight
+                    setMemoLineHeight(newLineHeight)
+                }
+            }
+
+            override fun onLineHeightReduce() {
+                val lineHeight = memoBean?.lineHeight?: DEFAULT_LINE_HEIGHT
+                if(lineHeight > 5){
+                    val newLineHeight = lineHeight.minus(1F)
+                    memoBean?.lineHeight = newLineHeight
+                    setMemoLineHeight(newLineHeight)
+                }
+            }
+
+        }
     }
 
     private fun setMemoFontSize(textSize: Float) {
@@ -86,7 +106,7 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
             val textView = TextView(this@PreviewMemoActivity)
             with(textView) {
                 textAddTextChangeListener(this, textSize.plus(3F))
-                setLineSpacing(0f, 1.1f)
+                setLineSpacing(firstChild.lineSpacingExtra, 1F)
                 textColor = R.color.colorFont
                 text = firstChild.text
             }
@@ -95,6 +115,14 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
         ll_preview_memo_content.forEachChildWithIndex { _, view ->
             if (view is TextView) {
                 view.textSize = textSize
+            }
+        }
+    }
+
+    private fun setMemoLineHeight(lineHeight: Float) {
+        ll_preview_memo_content.forEachChildWithIndex { _, view ->
+            if (view is TextView) {
+                view.setLineSpacing(lineHeight, 1F)
             }
         }
     }
@@ -119,7 +147,6 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
     private fun showMemoInfo(content: String) {
         val contentTagList = cutStringByImgTag(content)
         var isFirst = true
-//        ll_preview_memo_content.addView(View(this@PreviewMemoActivity))
         contentTagList.forEach {
             if (Pattern.compile(Constant.REGEX_IMAGE_TAG).matcher(it).find()) {
                 val matcher = Pattern.compile(Constant.REGEX_IMAGE_ID_TAG).matcher(it)
@@ -152,18 +179,24 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
                 } else {
                     memoBean?.fontSize ?: DEFAULT_FONT_SIZE
                 }
+                val lineHeight = if (memoBean?.lineHeight ?: 0F == 0F) {
+                    DEFAULT_LINE_HEIGHT
+                } else {
+                    memoBean?.lineHeight ?: DEFAULT_LINE_HEIGHT
+                }
                 with(textView) {
                     if (isFirst) {
                         textAddTextChangeListener(this, fontSize.plus(3F))
                         isFirst = false
                     }
-                    setLineSpacing(0f, 1.1f)
+                    setLineSpacing(lineHeight, 1F)
                     textColor = R.color.colorFont
                     logcat(fontSize.toString())
-                    memoBean?.fontSize = fontSize
                     textSize = fontSize
                     text = it
                 }
+                memoBean?.fontSize = fontSize
+                memoBean?.lineHeight = lineHeight
                 ll_preview_memo_content.addView(textView)
             }
         }
@@ -176,7 +209,6 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
                 val split = text?.split("\n")
                 val firstLine = split?.get(0)
                 if (firstLine != null) {
-                    logcat("fuck")
                     s.setSpan(ForegroundColorSpan(resources.getColor(R.color.colorFontDark)),
                             0,
                             firstLine.length,

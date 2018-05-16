@@ -29,7 +29,7 @@ public class MemoBean implements Serializable {
     private String content;
     private float fontSize;
     private int gravity;
-    private int lineHeight;
+    private float lineHeight;
     private String fontColor;
     private String backgroundColor;
     private String signFont;
@@ -47,9 +47,9 @@ public class MemoBean implements Serializable {
 
 
 
-    @Generated(hash = 997520301)
+    @Generated(hash = 838952493)
     public MemoBean(Long id, long folderID, String title, String content, float fontSize,
-            int gravity, int lineHeight, String fontColor, String backgroundColor,
+            int gravity, float lineHeight, String fontColor, String backgroundColor,
             String signFont, boolean isLock, long createTime, long updateTime,
             long deleteTime, GreenDaoType greenDaoType) {
         this.id = id;
@@ -182,11 +182,11 @@ public class MemoBean implements Serializable {
         this.gravity = gravity;
     }
 
-    public int getLineHeight() {
+    public float getLineHeight() {
         return this.lineHeight;
     }
 
-    public void setLineHight(int lineHeight) {
+    public void setLineHight(float lineHeight) {
         this.lineHeight = lineHeight;
     }
 
@@ -215,6 +215,12 @@ public class MemoBean implements Serializable {
     }
 
     public void setLineHeight(int lineHeight) {
+        this.lineHeight = lineHeight;
+    }
+
+
+
+    public void setLineHeight(float lineHeight) {
         this.lineHeight = lineHeight;
     }
 }

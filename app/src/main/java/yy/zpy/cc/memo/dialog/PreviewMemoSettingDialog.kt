@@ -13,6 +13,7 @@ import yy.zpy.cc.memo.R
  */
 class PreviewMemoSettingDialog(context: Context, themeResId: Int) : Dialog(context, themeResId) {
     var memoFontSizeSettingListener: IMemoFontSizeSettingListener? = null
+    var memoLineHeightSettingListener: IMemoLineHeightSettingListener? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.dialog_preview_memo_setting)
@@ -28,10 +29,21 @@ class PreviewMemoSettingDialog(context: Context, themeResId: Int) : Dialog(conte
         iv_font_size_reduce.setOnClickListener {
             memoFontSizeSettingListener?.onFontSizeReduce()
         }
+        iv_font_line_add.setOnClickListener {
+            memoLineHeightSettingListener?.onLineHeightAdd()
+        }
+        iv_font_line_reduce.setOnClickListener {
+            memoLineHeightSettingListener?.onLineHeightReduce()
+        }
     }
 
     interface IMemoFontSizeSettingListener {
         fun onFontSizeAdd()
         fun onFontSizeReduce()
+    }
+
+    interface IMemoLineHeightSettingListener {
+        fun onLineHeightAdd()
+        fun onLineHeightReduce()
     }
 }
