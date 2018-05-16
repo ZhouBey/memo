@@ -264,7 +264,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
 
     }
 
-    fun showMemoInfo(content: String) {
+    private fun showMemoInfo(content: String) {
         val contentTagList = cutStringByImgTag(content)
         var isFirst = true
         ll_root_memo_content.addView(View(this@MemoEditActivity))
@@ -383,7 +383,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         selectFolderDialog.y = dip(80)
     }
 
-    fun editAddTextChangeListener(editText: EditText) {
+    private fun editAddTextChangeListener(editText: EditText) {
         editText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(editable: Editable?) {
                 val content = editable?.toString()
@@ -542,13 +542,13 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         onRequestPermissionsResult(requestCode, grantResults)
     }
 
-    fun getEditText(): EditText {
+    private fun getEditText(): EditText {
         return EditText(this@MemoEditActivity).apply {
             val lp = LinearLayout.LayoutParams(matchParent, wrapContent)
 //            lp.topMargin = dip(15)
             layoutParams = lp
             gravity = Gravity.TOP
-            setLineSpacing(0f, 1.1f)
+            setLineSpacing(10F, 1F)
             textColor = R.color.colorFont
             textSize = 16f
 //            backgroundColor = Color.BLUE
@@ -560,7 +560,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         }
     }
 
-    fun getImageView(): ImageView {
+    private fun getImageView(): ImageView {
         return ImageViewWithDel(this@MemoEditActivity).apply {
             val lp = LinearLayout.LayoutParams(matchParent, wrapContent)
 //            lp.topMargin = dip(15)
