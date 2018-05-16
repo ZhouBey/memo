@@ -12,9 +12,7 @@ import yy.zpy.cc.memo.R
  * Created by zpy on 2018/5/14.
  */
 class PreviewMemoSettingDialog(context: Context, themeResId: Int) : Dialog(context, themeResId) {
-    var memoFontSizeSettingListener: IMemoFontSizeSettingListener? = null
-    var memoLineHeightSettingListener: IMemoLineHeightSettingListener? = null
-    var memoAlignSettingListener: IMemoAlignSettingListener? = null
+    var memoSettingListener: IMemoSettingListener? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.dialog_preview_memo_setting)
@@ -25,41 +23,39 @@ class PreviewMemoSettingDialog(context: Context, themeResId: Int) : Dialog(conte
 
     private fun bindClickListener() {
         tv_font_size_add.setOnClickListener {
-            memoFontSizeSettingListener?.onFontSizeAdd()
+            memoSettingListener?.onFontSizeAdd()
         }
         tv_font_size_reduce.setOnClickListener {
-            memoFontSizeSettingListener?.onFontSizeReduce()
+            memoSettingListener?.onFontSizeReduce()
         }
         tv_font_line_add.setOnClickListener {
-            memoLineHeightSettingListener?.onLineHeightAdd()
+            memoSettingListener?.onLineHeightAdd()
         }
         tv_font_line_reduce.setOnClickListener {
-            memoLineHeightSettingListener?.onLineHeightReduce()
+            memoSettingListener?.onLineHeightReduce()
         }
         iv_font_alignment_left.setOnClickListener {
-            memoAlignSettingListener?.onAlignLeft()
+            memoSettingListener?.onAlignLeft()
         }
         iv_font_alignment_center.setOnClickListener {
-            memoAlignSettingListener?.onAlignCenter()
+            memoSettingListener?.onAlignCenter()
         }
         iv_font_alignment_right.setOnClickListener {
-            memoAlignSettingListener?.onAlignRight()
+            memoSettingListener?.onAlignRight()
+        }
+        iv_draw_color.setOnClickListener {
+//            memoSettingListener?.onDrawColor()
         }
     }
 
-    interface IMemoFontSizeSettingListener {
+    interface IMemoSettingListener{
         fun onFontSizeAdd()
         fun onFontSizeReduce()
-    }
-
-    interface IMemoLineHeightSettingListener {
         fun onLineHeightAdd()
         fun onLineHeightReduce()
-    }
-
-    interface IMemoAlignSettingListener {
         fun onAlignLeft()
         fun onAlignCenter()
         fun onAlignRight()
+        fun onDrawColor(color:String)
     }
 }

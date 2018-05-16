@@ -154,30 +154,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:text="字色"
+            android:text="颜色"
             android:textColor="@color/colorFontMemoSetting"
             android:textSize="15sp" />
 
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/lineColor" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:orientation="horizontal"
-        android:paddingStart="20dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <ImageView
+            android:id="@+id/iv_draw_color"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:layout_gravity="center_vertical"
-            android:text="背景"
-            android:textColor="@color/colorFontMemoSetting"
-            android:textSize="15sp" />
+            android:layout_marginStart="30dp"
+            android:background="@drawable/bg_circle_image"
+            android:src="@drawable/ic_picker_color" />
 
     </LinearLayout>
 

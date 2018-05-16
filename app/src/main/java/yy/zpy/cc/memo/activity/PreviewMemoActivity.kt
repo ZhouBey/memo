@@ -60,7 +60,7 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
 
     private fun initPreviewMemoSettingDialog() {
         previewMemoSettingDialog = PreviewMemoSettingDialog(this@PreviewMemoActivity, R.style.WhiteDialog)
-        previewMemoSettingDialog.memoFontSizeSettingListener = object : PreviewMemoSettingDialog.IMemoFontSizeSettingListener {
+        previewMemoSettingDialog.memoSettingListener = object : PreviewMemoSettingDialog.IMemoSettingListener {
             override fun onFontSizeAdd() {
                 val textSize = memoBean?.fontSize ?: DEFAULT_FONT_SIZE
                 if (textSize < 18) {
@@ -78,8 +78,7 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
                     setMemoFontSize(newTextSize)
                 }
             }
-        }
-        previewMemoSettingDialog.memoLineHeightSettingListener = object : PreviewMemoSettingDialog.IMemoLineHeightSettingListener {
+
             override fun onLineHeightAdd() {
                 val lineHeight = memoBean?.lineHeight ?: DEFAULT_LINE_HEIGHT
                 if (lineHeight < 20) {
@@ -98,8 +97,6 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
                 }
             }
 
-        }
-        previewMemoSettingDialog.memoAlignSettingListener = object : PreviewMemoSettingDialog.IMemoAlignSettingListener {
             override fun onAlignLeft() {
                 memoBean?.gravity = Gravity.START
                 setMemoAlign(Gravity.START)
@@ -114,6 +111,11 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
                 memoBean?.gravity = Gravity.END
                 setMemoAlign(Gravity.END)
             }
+
+            override fun onDrawColor(color: String) {
+
+            }
+
         }
     }
 
