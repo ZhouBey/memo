@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -8,31 +9,41 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:orientation="horizontal"
-        android:paddingStart="15dp">
+        android:paddingStart="20dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:text="字号"
-            android:textColor="@color/colorFontDark"
+            android:textColor="@color/colorFontMemoSetting"
             android:textSize="15sp" />
 
-        <ImageView
-            android:id="@+id/iv_font_size_add"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+        <TextView
+            android:id="@+id/tv_font_size_reduce"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="30dp"
-            android:src="@android:drawable/ic_menu_add" />
+            android:background="@drawable/bg_circle_text"
+            android:gravity="center"
+            android:text="A-"
+            android:textColor="@color/colorFontMemoSetting"
+            android:textSize="10sp"
+            tools:ignore="SmallSp" />
 
-        <ImageView
-            android:id="@+id/iv_font_size_reduce"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+        <TextView
+            android:id="@+id/tv_font_size_add"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="30dp"
-            android:src="@android:drawable/ic_input_add" />
+            android:layout_marginStart="17dp"
+            android:background="@drawable/bg_circle_text"
+            android:gravity="center"
+            android:text="A+"
+            android:textColor="@color/colorFontMemoSetting"
+            android:textSize="10sp"
+            tools:ignore="SmallSp" />
     </LinearLayout>
 
     <View
@@ -44,31 +55,41 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:orientation="horizontal"
-        android:paddingStart="15dp">
+        android:paddingStart="20dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:text="行高"
-            android:textColor="@color/colorFontDark"
+            android:textColor="@color/colorFontMemoSetting"
             android:textSize="15sp" />
 
-        <ImageView
-            android:id="@+id/iv_font_line_add"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+        <TextView
+            android:id="@+id/tv_font_line_reduce"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="30dp"
-            android:src="@android:drawable/ic_menu_add" />
+            android:background="@drawable/bg_circle_text"
+            android:gravity="center"
+            android:text="L-"
+            android:textColor="@color/colorFontMemoSetting"
+            android:textSize="10sp"
+            tools:ignore="SmallSp" />
 
-        <ImageView
-            android:id="@+id/iv_font_line_reduce"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+        <TextView
+            android:id="@+id/tv_font_line_add"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="30dp"
-            android:src="@android:drawable/ic_input_add" />
+            android:layout_marginStart="17dp"
+            android:background="@drawable/bg_circle_text"
+            android:gravity="center"
+            android:text="L+"
+            android:textColor="@color/colorFontMemoSetting"
+            android:textSize="10sp"
+            tools:ignore="SmallSp" />
     </LinearLayout>
 
     <View
@@ -80,39 +101,42 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:orientation="horizontal"
-        android:paddingStart="15dp">
+        android:paddingStart="20dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:text="对齐"
-            android:textColor="@color/colorFontDark"
+            android:textColor="@color/colorFontMemoSetting"
             android:textSize="15sp" />
 
         <ImageView
             android:id="@+id/iv_font_alignment_left"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:layout_gravity="center_vertical"
             android:layout_marginStart="30dp"
-            android:src="@android:drawable/ic_menu_add" />
+            android:background="@drawable/bg_circle_image"
+            android:src="@drawable/ic_align_left" />
 
         <ImageView
             android:id="@+id/iv_font_alignment_center"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="30dp"
-            android:src="@android:drawable/ic_input_add" />
+            android:layout_marginStart="17dp"
+            android:background="@drawable/bg_circle_image"
+            android:src="@drawable/ic_align_center" />
 
         <ImageView
             android:id="@+id/iv_font_alignment_right"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:layout_gravity="center_vertical"
-            android:layout_marginStart="30dp"
-            android:src="@android:drawable/ic_input_add" />
+            android:layout_marginStart="17dp"
+            android:background="@drawable/bg_circle_image"
+            android:src="@drawable/ic_align_right" />
     </LinearLayout>
 
     <View
@@ -124,14 +148,14 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:orientation="horizontal"
-        android:paddingStart="15dp">
+        android:paddingStart="20dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:text="字色"
-            android:textColor="@color/colorFontDark"
+            android:textColor="@color/colorFontMemoSetting"
             android:textSize="15sp" />
 
     </LinearLayout>
@@ -145,14 +169,14 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:orientation="horizontal"
-        android:paddingStart="15dp">
+        android:paddingStart="20dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:text="背景"
-            android:textColor="@color/colorFontDark"
+            android:textColor="@color/colorFontMemoSetting"
             android:textSize="15sp" />
 
     </LinearLayout>
@@ -166,14 +190,14 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:orientation="horizontal"
-        android:paddingStart="15dp">
+        android:paddingStart="20dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:text="其他"
-            android:textColor="@color/colorFontDark"
+            android:textColor="@color/colorFontMemoSetting"
             android:textSize="15sp" />
 
     </LinearLayout>

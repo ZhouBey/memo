@@ -24,16 +24,16 @@ class PreviewMemoSettingDialog(context: Context, themeResId: Int) : Dialog(conte
     }
 
     private fun bindClickListener() {
-        iv_font_size_add.setOnClickListener {
+        tv_font_size_add.setOnClickListener {
             memoFontSizeSettingListener?.onFontSizeAdd()
         }
-        iv_font_size_reduce.setOnClickListener {
+        tv_font_size_reduce.setOnClickListener {
             memoFontSizeSettingListener?.onFontSizeReduce()
         }
-        iv_font_line_add.setOnClickListener {
+        tv_font_line_add.setOnClickListener {
             memoLineHeightSettingListener?.onLineHeightAdd()
         }
-        iv_font_line_reduce.setOnClickListener {
+        tv_font_line_reduce.setOnClickListener {
             memoLineHeightSettingListener?.onLineHeightReduce()
         }
         iv_font_alignment_left.setOnClickListener {
