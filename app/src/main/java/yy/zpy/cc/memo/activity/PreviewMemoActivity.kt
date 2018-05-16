@@ -8,6 +8,7 @@ import android.text.Spanned
 import android.text.TextWatcher
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
+import android.view.Gravity
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
@@ -37,6 +38,7 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
     companion object {
         const val DEFAULT_FONT_SIZE = 14F
         const val DEFAULT_LINE_HEIGHT = 10F
+        const val DEFAULT_GRAVITY = Gravity.START
     }
 
     override fun getLayout(): Int = R.layout.activity_memo_preview
@@ -79,8 +81,8 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
         }
         previewMemoSettingDialog.memoLineHeightSettingListener = object : PreviewMemoSettingDialog.IMemoLineHeightSettingListener {
             override fun onLineHeightAdd() {
-                val lineHeight = memoBean?.lineHeight?: DEFAULT_LINE_HEIGHT
-                if(lineHeight < 20){
+                val lineHeight = memoBean?.lineHeight ?: DEFAULT_LINE_HEIGHT
+                if (lineHeight < 20) {
                     val newLineHeight = lineHeight.plus(1F)
                     memoBean?.lineHeight = newLineHeight
                     setMemoLineHeight(newLineHeight)
@@ -88,14 +90,30 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
             }
 
             override fun onLineHeightReduce() {
-                val lineHeight = memoBean?.lineHeight?: DEFAULT_LINE_HEIGHT
-                if(lineHeight > 5){
+                val lineHeight = memoBean?.lineHeight ?: DEFAULT_LINE_HEIGHT
+                if (lineHeight > 5) {
                     val newLineHeight = lineHeight.minus(1F)
                     memoBean?.lineHeight = newLineHeight
                     setMemoLineHeight(newLineHeight)
                 }
             }
 
+        }
+        previewMemoSettingDialog.memoAlignSettingListener = object : PreviewMemoSettingDialog.IMemoAlignSettingListener {
+            override fun onAlignLeft() {
+                memoBean?.gravity = Gravity.START
+                setMemoAlign(Gravity.START)
+            }
+
+            override fun onAlignCenter() {
+                memoBean?.gravity = Gravity.CENTER_HORIZONTAL
+                setMemoAlign(Gravity.CENTER_HORIZONTAL)
+            }
+
+            override fun onAlignRight() {
+                memoBean?.gravity = Gravity.END
+                setMemoAlign(Gravity.END)
+            }
         }
     }
 
@@ -107,6 +125,7 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
             with(textView) {
                 textAddTextChangeListener(this, textSize.plus(3F))
                 setLineSpacing(firstChild.lineSpacingExtra, 1F)
+                gravity = firstChild.gravity
                 textColor = R.color.colorFont
                 text = firstChild.text
             }
@@ -123,6 +142,14 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
         ll_preview_memo_content.forEachChildWithIndex { _, view ->
             if (view is TextView) {
                 view.setLineSpacing(lineHeight, 1F)
+            }
+        }
+    }
+
+    private fun setMemoAlign(align: Int) {
+        ll_preview_memo_content.forEachChildWithIndex { _, view ->
+            if (view is TextView) {
+                view.gravity = align
             }
         }
     }
@@ -184,14 +211,19 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
                 } else {
                     memoBean?.lineHeight ?: DEFAULT_LINE_HEIGHT
                 }
+                val gravity = if (memoBean?.gravity ?: DEFAULT_GRAVITY == 0) {
+                    DEFAULT_GRAVITY
+                } else {
+                    memoBean?.gravity ?: DEFAULT_GRAVITY
+                }
                 with(textView) {
                     if (isFirst) {
                         textAddTextChangeListener(this, fontSize.plus(3F))
                         isFirst = false
                     }
                     setLineSpacing(lineHeight, 1F)
+                    setGravity(gravity)
                     textColor = R.color.colorFont
-                    logcat(fontSize.toString())
                     textSize = fontSize
                     text = it
                 }
