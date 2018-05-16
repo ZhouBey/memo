@@ -8,7 +8,6 @@ import android.text.Spanned
 import android.text.TextWatcher
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
-import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
@@ -18,28 +17,85 @@ import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import kotlinx.android.synthetic.main.activity_memo_preview.*
 import org.jetbrains.anko.dip
+import org.jetbrains.anko.forEachChildWithIndex
 import org.jetbrains.anko.matchParent
 import org.jetbrains.anko.textColor
+import yy.zpy.cc.greendaolibrary.bean.MemoBean
 import yy.zpy.cc.memo.R
+import yy.zpy.cc.memo.dialog.PreviewMemoSettingDialog
 import yy.zpy.cc.memo.interf.IBaseUI
+import yy.zpy.cc.memo.logcat
 import yy.zpy.cc.memo.util.Constant
 import java.io.File
 import java.util.regex.Pattern
+import kotlin.properties.Delegates
 
 /**
  * Created by zpy on 2018/5/11.
  */
 class PreviewMemoActivity : BaseActivity(), IBaseUI {
-    override fun getLayout(): Int = R.layout.activity_memo_preview
-    var memoContent: String? = null
-    override fun initView() {
-        memoContent = intent.getStringExtra("memoContent")
+    companion object {
+        const val DEFAULT_FONT_SIZE = 14F
+    }
 
+    override fun getLayout(): Int = R.layout.activity_memo_preview
+    private var memoBeanId: Long? = null
+    private var memoBean: MemoBean? = null
+    private var previewMemoSettingDialog: PreviewMemoSettingDialog by Delegates.notNull()
+    private var textWatcher: TextWatcher? = null
+    override fun initView() {
+        memoBeanId = intent.getLongExtra("memoBeanID", -1L)
+        memoBean = app.memoBeanDao?.load(memoBeanId)
+        initPreviewMemoSettingDialog()
     }
 
     override fun show() {
-        memoContent?.let {
-            showMemoInfo(it)
+        memoBean?.let {
+            logcat(it.content)
+            showMemoInfo(it.content)
+        }
+    }
+
+    private fun initPreviewMemoSettingDialog() {
+        previewMemoSettingDialog = PreviewMemoSettingDialog(this@PreviewMemoActivity, R.style.WhiteDialog)
+        previewMemoSettingDialog.memoFontSizeSettingListener = object : PreviewMemoSettingDialog.IMemoFontSizeSettingListener {
+            override fun onFontSizeAdd() {
+                val textSize = memoBean?.fontSize ?: DEFAULT_FONT_SIZE
+                if (textSize < 20) {
+                    val newTextSize = textSize.plus(1F)
+                    memoBean?.fontSize = newTextSize
+                    setMemoFontSize(newTextSize)
+                }
+            }
+
+            override fun onFontSizeReduce() {
+                val textSize = memoBean?.fontSize ?: DEFAULT_FONT_SIZE
+                if (textSize > 10) {
+                    val newTextSize = textSize.minus(1F)
+                    memoBean?.fontSize = newTextSize
+                    setMemoFontSize(newTextSize)
+                }
+            }
+        }
+    }
+
+    private fun setMemoFontSize(textSize: Float) {
+        val firstChild = ll_preview_memo_content.getChildAt(0)
+        if (firstChild is TextView) {
+            ll_preview_memo_content.removeView(firstChild)
+            val textView = TextView(this@PreviewMemoActivity)
+            with(textView) {
+                textAddTextChangeListener(this, textSize.plus(3F))
+                setLineSpacing(0f, 1.1f)
+                textColor = R.color.colorFont
+                text = firstChild.text
+            }
+            ll_preview_memo_content.addView(textView, 0)
+        }
+        ll_preview_memo_content.forEachChildWithIndex { _, view ->
+            if (view is TextView) {
+                view.textSize = textSize
+            }
         }
     }
 
@@ -47,6 +103,9 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
         ib_back.setOnClickListener {
             this@PreviewMemoActivity.finish()
             overridePendingTransition(R.anim.anim_slide_no, R.anim.anim_slide_out_right)
+        }
+        rl_root_preview_memo.setOnClickListener {
+            previewMemoSettingDialog.show()
         }
     }
 
@@ -60,7 +119,7 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
     private fun showMemoInfo(content: String) {
         val contentTagList = cutStringByImgTag(content)
         var isFirst = true
-        ll_preview_memo_content.addView(View(this@PreviewMemoActivity))
+//        ll_preview_memo_content.addView(View(this@PreviewMemoActivity))
         contentTagList.forEach {
             if (Pattern.compile(Constant.REGEX_IMAGE_TAG).matcher(it).find()) {
                 val matcher = Pattern.compile(Constant.REGEX_IMAGE_ID_TAG).matcher(it)
@@ -88,14 +147,21 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
                 }
             } else {
                 val textView = TextView(this@PreviewMemoActivity)
+                val fontSize = if (memoBean?.fontSize ?: 0F == 0F) {
+                    DEFAULT_FONT_SIZE
+                } else {
+                    memoBean?.fontSize ?: DEFAULT_FONT_SIZE
+                }
                 with(textView) {
                     if (isFirst) {
-                        textAddTextChangeListener(this)
+                        textAddTextChangeListener(this, fontSize.plus(3F))
                         isFirst = false
                     }
                     setLineSpacing(0f, 1.1f)
                     textColor = R.color.colorFont
-                    textSize = 14f
+                    logcat(fontSize.toString())
+                    memoBean?.fontSize = fontSize
+                    textSize = fontSize
                     text = it
                 }
                 ll_preview_memo_content.addView(textView)
@@ -103,18 +169,19 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
         }
     }
 
-    private fun textAddTextChangeListener(textView: TextView) {
-        textView.addTextChangedListener(object : TextWatcher {
+    private fun textAddTextChangeListener(textView: TextView, textSize: Float) {
+        val textWatcher = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 val text = s?.toString()
                 val split = text?.split("\n")
                 val firstLine = split?.get(0)
                 if (firstLine != null) {
+                    logcat("fuck")
                     s.setSpan(ForegroundColorSpan(resources.getColor(R.color.colorFontDark)),
                             0,
                             firstLine.length,
                             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                    s.setSpan(AbsoluteSizeSpan(dip(17)),
+                    s.setSpan(AbsoluteSizeSpan(dip(textSize)),
                             0,
                             firstLine.length,
                             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
@@ -126,6 +193,7 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
             }
-        })
+        }
+        textView.addTextChangedListener(textWatcher)
     }
 }

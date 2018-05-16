@@ -65,9 +65,10 @@
         android:layout_height="wrap_content">
 
         <RelativeLayout
+            android:id="@+id/rl_root_preview_memo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="12dp"
+            android:layout_margin="10dp"
             android:background="#FEFFB3"
             android:paddingBottom="12dp"
             android:paddingLeft="15dp"

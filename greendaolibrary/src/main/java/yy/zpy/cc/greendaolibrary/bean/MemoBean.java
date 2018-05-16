@@ -27,6 +27,12 @@ public class MemoBean implements Serializable {
     private long folderID;
     private String title;
     private String content;
+    private float fontSize;
+    private int gravity;
+    private int lineHeight;
+    private String fontColor;
+    private String backgroundColor;
+    private String signFont;
     private boolean isLock;
     private long createTime;
     private long updateTime;
@@ -34,13 +40,28 @@ public class MemoBean implements Serializable {
     @Convert(converter = GreenDaoTypeConverter.class, columnType = String.class)
     private GreenDaoType greenDaoType;
 
-    @Generated(hash = 131344341)
-    public MemoBean(Long id, long folderID, String title, String content, boolean isLock,
-            long createTime, long updateTime, long deleteTime, GreenDaoType greenDaoType) {
+    
+    public MemoBean() {
+        this.createTime = System.currentTimeMillis();
+    }
+
+
+
+    @Generated(hash = 997520301)
+    public MemoBean(Long id, long folderID, String title, String content, float fontSize,
+            int gravity, int lineHeight, String fontColor, String backgroundColor,
+            String signFont, boolean isLock, long createTime, long updateTime,
+            long deleteTime, GreenDaoType greenDaoType) {
         this.id = id;
         this.folderID = folderID;
         this.title = title;
         this.content = content;
+        this.fontSize = fontSize;
+        this.gravity = gravity;
+        this.lineHeight = lineHeight;
+        this.fontColor = fontColor;
+        this.backgroundColor = backgroundColor;
+        this.signFont = signFont;
         this.isLock = isLock;
         this.createTime = createTime;
         this.updateTime = updateTime;
@@ -48,9 +69,7 @@ public class MemoBean implements Serializable {
         this.greenDaoType = greenDaoType;
     }
 
-    public MemoBean() {
-        this.createTime = System.currentTimeMillis();
-    }
+
 
     public Long getId() {
         return id;
@@ -145,5 +164,57 @@ public class MemoBean implements Serializable {
                 ", deleteTime=" + DateFormat.format("yyyy-MM-dd HH:mm:ss", deleteTime) +
                 ", greenDaoType=" + greenDaoType +
                 '}';
+    }
+
+    public float getFontSize() {
+        return this.fontSize;
+    }
+
+    public void setFontSize(float fontSize) {
+        this.fontSize = fontSize;
+    }
+
+    public int getGravity() {
+        return this.gravity;
+    }
+
+    public void setGravity(int gravity) {
+        this.gravity = gravity;
+    }
+
+    public int getLineHeight() {
+        return this.lineHeight;
+    }
+
+    public void setLineHight(int lineHeight) {
+        this.lineHeight = lineHeight;
+    }
+
+    public String getFontColor() {
+        return this.fontColor;
+    }
+
+    public void setFontColor(String fontColor) {
+        this.fontColor = fontColor;
+    }
+
+    public String getBackgroundColor() {
+        return this.backgroundColor;
+    }
+
+    public void setBackgroundColor(String backgroundColor) {
+        this.backgroundColor = backgroundColor;
+    }
+
+    public String getSignFont() {
+        return this.signFont;
+    }
+
+    public void setSignFont(String signFont) {
+        this.signFont = signFont;
+    }
+
+    public void setLineHeight(int lineHeight) {
+        this.lineHeight = lineHeight;
     }
 }

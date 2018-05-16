@@ -136,7 +136,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                     toast("内容不能为空")
                     return@setOnClickListener
                 }
-                startActivity<PreviewMemoActivity>("memoContent" to memoContent)
+                startActivity<PreviewMemoActivity>("memoBeanID" to memoBeanID)
             } else {
                 finishStatus()
                 hideKeyboard()
