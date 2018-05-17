@@ -31,27 +31,28 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-    compile "org.jetbrains.anko:anko-sqlite:$anko_version"
-    compile "org.jetbrains.anko:anko-commons:$anko_version"
-    compile "org.jetbrains.anko:anko-sdk25:$anko_version"
-    compile "org.jetbrains.anko:anko-appcompat-v7:$anko_version"
-    compile "org.jetbrains.anko:anko-sdk25-coroutines:$anko_version"
-    compile "org.jetbrains.anko:anko-appcompat-v7-coroutines:$anko_version"
+    implementation "org.jetbrains.anko:anko-sqlite:$anko_version"
+    implementation "org.jetbrains.anko:anko-commons:$anko_version"
+    implementation "org.jetbrains.anko:anko-sdk25:$anko_version"
+    implementation "org.jetbrains.anko:anko-appcompat-v7:$anko_version"
+    implementation "org.jetbrains.anko:anko-sdk25-coroutines:$anko_version"
+    implementation "org.jetbrains.anko:anko-appcompat-v7-coroutines:$anko_version"
     implementation project(':greendaolibrary')
     //图片选择器
-    compile 'com.zhihu.android:matisse:0.4.3'
+    implementation 'com.zhihu.android:matisse:0.4.3'
     //显示图片glide
-    compile 'com.github.bumptech.glide:glide:4.7.1'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
+    implementation 'com.github.bumptech.glide:glide:4.7.1'
+    kapt 'com.github.bumptech.glide:compiler:4.7.1'
     //6.0+申请权限
-    compile("com.github.hotchemi:permissionsdispatcher:3.0.1") {
+    implementation("com.github.hotchemi:permissionsdispatcher:3.0.1") {
         // if you don't use android.app.Fragment you can exclude support for them
         exclude module: "support-v13"
     }
     kapt "com.github.hotchemi:permissionsdispatcher-processor:3.1.0"
     //裁剪图片
-    compile 'com.github.yalantis:ucrop:2.2.1'
+    implementation 'com.github.yalantis:ucrop:2.2.1'
     implementation('com.github.niorgai:StatusBarCompat:2.1.4', {
         exclude group: 'com.android.support'
     })
+    implementation 'com.github.QuadFlask:colorpicker:0.0.13'
 }

@@ -69,6 +69,10 @@
         <item name="android:backgroundDimAmount">0.55</item>
     </style>
 
+    <style name="PreviewMemoSettingDialog" parent="WhiteDialog">
+        <item name="android:backgroundDimAmount">0.2</item>
+    </style>
+
     <style name="Memo_Zhihu" parent="Matisse.Zhihu">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
