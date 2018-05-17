@@ -1,9 +1,14 @@
 package yy.zpy.cc.memo.activity
 
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.Spanned
 import android.text.TextWatcher
@@ -213,6 +218,17 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
         }
         rl_root_preview_memo.setOnClickListener {
             previewMemoSettingDialog.show()
+        }
+        ib_share.setOnClickListener {
+            val bitmap = Bitmap.createBitmap(rl_root_preview_memo.width, rl_root_preview_memo.height, Bitmap.Config.ARGB_8888)
+            bitmap.density = rl_root_preview_memo.getResources().displayMetrics.densityDpi
+            val canvas = Canvas(bitmap)
+            rl_root_preview_memo.draw(canvas)
+            val uri = Uri.parse(MediaStore.Images.Media.insertImage(contentResolver, bitmap, null, null))
+            val intent = Intent(Intent.ACTION_SEND)
+            intent.type = "image/png"
+            intent.putExtra(Intent.EXTRA_STREAM, uri)
+            startActivity(Intent.createChooser(intent, "分享便签"))
         }
     }
 
