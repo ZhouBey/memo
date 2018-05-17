@@ -10,6 +10,7 @@ import android.text.TextWatcher
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import android.view.Gravity
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
@@ -40,6 +41,7 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
         const val DEFAULT_GRAVITY = Gravity.START
         const val DEFAULT_FONT_COLOR = "#3A3F45"
         const val DEFAULT_BACKGROUND_COLOR = "#FFFFFF"
+        const val DEFAULT_SIGN = "sign by LBT"
     }
 
     private var memoBeanId: Long? = null
@@ -59,7 +61,18 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
 
     private fun initPreviewMemoSettingDialog() {
         previewMemoSettingDialog = PreviewMemoSettingDialog(this@PreviewMemoActivity, R.style.PreviewMemoSettingDialog)
+        previewMemoSettingDialog.sign = memoBean?.signFont ?: DEFAULT_SIGN
         previewMemoSettingDialog.memoSettingListener = object : PreviewMemoSettingDialog.IMemoSettingListener {
+            override fun onSignSet(sign: String) {
+                memoBean?.signFont = sign
+                if (sign == "") {
+                    tv_preview_memo_sign.visibility = View.GONE
+                } else {
+                    tv_preview_memo_sign.visibility = View.VISIBLE
+                    tv_preview_memo_sign.text = sign
+                }
+            }
+
             override fun onFontSizeAdd() {
                 val textSize = memoBean?.fontSize ?: DEFAULT_FONT_SIZE
                 if (textSize < 18) {
@@ -131,7 +144,8 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
             ll_preview_memo_content.removeView(firstChild)
             val textView = TextView(this@PreviewMemoActivity)
             with(textView) {
-                textAddTextChangeListener(this, (memoBean?.fontSize ?: DEFAULT_FONT_SIZE).plus(3F), color)
+                textAddTextChangeListener(this, (memoBean?.fontSize
+                        ?: DEFAULT_FONT_SIZE).plus(3F), color)
                 setLineSpacing(firstChild.lineSpacingExtra, 1F)
                 gravity = firstChild.gravity
                 text = firstChild.text
@@ -288,6 +302,7 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
             memoBean?.backgroundColor ?: DEFAULT_BACKGROUND_COLOR
         }
         rl_root_preview_memo.backgroundColor = Color.parseColor(backgroundColorForMemo)
+        tv_preview_memo_sign.text = memoBean?.signFont ?: DEFAULT_SIGN
     }
 
     private fun textAddTextChangeListener(textView: TextView, textSize: Float, color: String) {

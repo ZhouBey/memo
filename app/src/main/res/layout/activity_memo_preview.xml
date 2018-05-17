@@ -90,7 +90,6 @@
                 android:layout_alignParentEnd="true"
                 android:layout_below="@id/ll_preview_memo_content"
                 android:layout_marginTop="10dp"
-                android:text="sign by LBT"
                 android:textSize="12sp" />
         </RelativeLayout>
     </ScrollView>

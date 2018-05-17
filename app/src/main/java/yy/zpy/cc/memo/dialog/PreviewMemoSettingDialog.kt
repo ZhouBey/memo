@@ -9,14 +9,16 @@ import kotlinx.android.synthetic.main.dialog_preview_memo_setting.*
 import org.jetbrains.anko.backgroundResource
 import org.jetbrains.anko.matchParent
 import yy.zpy.cc.memo.R
+import yy.zpy.cc.memo.activity.hideKeyboard
 
 /**
  * Created by zpy on 2018/5/14.
  */
 class PreviewMemoSettingDialog(context: Context, themeResId: Int) : Dialog(context, themeResId) {
     var memoSettingListener: IMemoSettingListener? = null
-    private var flag = 0 //0代表所有设置界面，1代表颜色选择界面
+    private var flag = 0 //0代表所有设置界面，1代表颜色选择界面,2代表输入签名界面
     private var type = 0 //0代表设置文字颜色，1代表设置背景颜色
+    var sign: String? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.dialog_preview_memo_setting)
@@ -66,12 +68,21 @@ class PreviewMemoSettingDialog(context: Context, themeResId: Int) : Dialog(conte
         iv_draw_color.setOnClickListener {
             ll_root_setting.visibility = View.GONE
             ll_draw_color.visibility = View.VISIBLE
+            rl_edit_sign.visibility = View.GONE
             flag = 1
         }
         iv_cancel_draw_color.setOnClickListener {
             flag = 0
             ll_root_setting.visibility = View.VISIBLE
             ll_draw_color.visibility = View.GONE
+            rl_edit_sign.visibility = View.GONE
+        }
+        iv_cancel_edit_sign.setOnClickListener {
+            flag = 0
+            hideKeyboard(et_sign)
+            ll_root_setting.visibility = View.VISIBLE
+            ll_draw_color.visibility = View.GONE
+            rl_edit_sign.visibility = View.GONE
         }
         tv_text_color_setting.setOnClickListener {
             if (type == 1) {
@@ -87,13 +98,32 @@ class PreviewMemoSettingDialog(context: Context, themeResId: Int) : Dialog(conte
                 tv_background_color_setting.backgroundResource = R.drawable.bg_oval_text_checked
             }
         }
+        tv_sign_setting.setOnClickListener {
+            ll_root_setting.visibility = View.GONE
+            ll_draw_color.visibility = View.GONE
+            rl_edit_sign.visibility = View.VISIBLE
+            flag = 2
+            sign?.let {
+                et_sign.setText(it)
+            }
+        }
+        btn_sign_ok.setOnClickListener {
+            flag = 0
+            hideKeyboard(et_sign)
+            ll_root_setting.visibility = View.VISIBLE
+            ll_draw_color.visibility = View.GONE
+            rl_edit_sign.visibility = View.GONE
+            val sign = et_sign.text.trim().toString()
+            memoSettingListener?.onSignSet(sign)
+        }
     }
 
     override fun onBackPressed() {
-        if (flag == 1) {
+        if (flag != 0) {
             flag = 0
             ll_root_setting.visibility = View.VISIBLE
             ll_draw_color.visibility = View.GONE
+            rl_edit_sign.visibility = View.GONE
         } else {
             super.onBackPressed()
         }
@@ -108,5 +138,6 @@ class PreviewMemoSettingDialog(context: Context, themeResId: Int) : Dialog(conte
         fun onAlignCenter()
         fun onAlignRight()
         fun onDrawColor(color: String, type: Int)
+        fun onSignSet(sign: String)
     }
 }

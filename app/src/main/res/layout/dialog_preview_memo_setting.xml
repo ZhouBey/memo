@@ -195,6 +195,16 @@
                 android:textColor="@color/colorFontMemoSetting"
                 android:textSize="15sp" />
 
+            <TextView
+                android:id="@+id/tv_sign_setting"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="30dp"
+                android:background="@drawable/bg_oval_text_normal"
+                android:text="底部签名"
+                android:textColor="@color/colorFont"
+                android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
 
@@ -278,4 +288,51 @@
                 android:layout_height="48dp" />
         </LinearLayout>
     </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_edit_sign"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/iv_cancel_edit_sign"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:padding="10dp"
+            android:src="@drawable/ic_cancel" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/iv_cancel_edit_sign"
+            android:orientation="vertical"
+            android:paddingBottom="30dp"
+            android:paddingEnd="30dp"
+            android:paddingStart="30dp"
+            android:paddingTop="30dp">
+
+            <EditText
+                android:id="@+id/et_sign"
+                android:layout_width="match_parent"
+                android:layout_height="38dp"
+                android:background="@drawable/bg_oval_text_normal"
+                android:inputType="text"
+                android:singleLine="true" />
+
+            <Button
+                android:id="@+id/btn_sign_ok"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginTop="30dp"
+                android:background="@color/colorPrimary"
+                android:text="确定"
+                android:textColor="@color/colorWhite"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </RelativeLayout>
 </FrameLayout>
