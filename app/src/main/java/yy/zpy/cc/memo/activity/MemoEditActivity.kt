@@ -275,6 +275,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                     val imageView = getImageView()
                     val imageID = matcher.group(3)
                     imageView.setTag(R.id.tag_image_view_uri, imageID)
+                    ll_root_memo_content.addView(imageView)
                     Glide.with(this@MemoEditActivity).load(File(Environment.getExternalStorageDirectory().toString() + "/" + Constant.MEMO_PICTURES + "/" + imageID + ".png"))
                             .apply(RequestOptions().error(R.drawable.img_error)
                                     .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -290,7 +291,6 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                                     imageView.setImageDrawable(errorDrawable)
                                 }
                             })
-                    ll_root_memo_content.addView(imageView)
                     isFirst = false
                 }
             } else {
@@ -642,7 +642,7 @@ fun getDateDesc(calendar: Calendar): String {
 
 fun adjustImageView(context: Context, imageView: ImageView, resource: Drawable?) {
     val width = getScreenWidth(context)
-    var height: Int by Delegates.notNull<Int>()
+    var height: Int by Delegates.notNull()
     val bitmapDrawable = resource as BitmapDrawable
     val bitmap = bitmapDrawable.bitmap
     var scale by Delegates.notNull<Float>()

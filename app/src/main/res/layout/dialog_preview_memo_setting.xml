@@ -322,7 +322,9 @@
                 android:layout_height="38dp"
                 android:background="@drawable/bg_oval_text_normal"
                 android:inputType="text"
-                android:singleLine="true" />
+                android:singleLine="true"
+                android:textColor="@color/colorFont"
+                android:textSize="14sp" />
 
             <Button
                 android:id="@+id/btn_sign_ok"

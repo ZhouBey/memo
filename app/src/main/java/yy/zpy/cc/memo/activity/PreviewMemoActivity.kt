@@ -221,7 +221,7 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
         }
         ib_share.setOnClickListener {
             val bitmap = Bitmap.createBitmap(rl_root_preview_memo.width, rl_root_preview_memo.height, Bitmap.Config.ARGB_8888)
-            bitmap.density = rl_root_preview_memo.getResources().displayMetrics.densityDpi
+            bitmap.density = rl_root_preview_memo.resources.displayMetrics.densityDpi
             val canvas = Canvas(bitmap)
             rl_root_preview_memo.draw(canvas)
             val uri = Uri.parse(MediaStore.Images.Media.insertImage(contentResolver, bitmap, null, null))
@@ -254,6 +254,7 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
                     val imageView = ImageView(this@PreviewMemoActivity)
                     val imageID = matcher.group(3)
                     imageView.setTag(R.id.tag_image_view_uri, imageID)
+                    ll_preview_memo_content.addView(imageView)
                     Glide.with(this@PreviewMemoActivity).load(File(Environment.getExternalStorageDirectory().toString() + "/" + Constant.MEMO_PICTURES + "/" + imageID + ".png"))
                             .apply(RequestOptions().error(R.drawable.img_error)
                                     .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -269,7 +270,6 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
                                     imageView.setImageDrawable(errorDrawable)
                                 }
                             })
-                    ll_preview_memo_content.addView(imageView)
                     isFirst = false
                 }
             } else {

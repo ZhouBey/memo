@@ -28,7 +28,7 @@
             android:layout_centerHorizontal="true"
             android:background="@color/colorPrimary"
             android:gravity="center"
-            android:text="好记性不如烂笔头"
+            android:text="好记性不如蓝笔头"
             android:textColor="@color/colorWhite" />
 
         <LinearLayout
