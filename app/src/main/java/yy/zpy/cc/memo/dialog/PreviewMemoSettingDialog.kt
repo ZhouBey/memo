@@ -19,6 +19,7 @@ class PreviewMemoSettingDialog(context: Context, themeResId: Int) : Dialog(conte
     private var flag = 0 //0代表所有设置界面，1代表颜色选择界面,2代表输入签名界面
     private var type = 0 //0代表设置文字颜色，1代表设置背景颜色
     var sign: String? = null
+    var textGravity = Gravity.START
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.dialog_preview_memo_setting)
@@ -41,6 +42,11 @@ class PreviewMemoSettingDialog(context: Context, themeResId: Int) : Dialog(conte
         }
         tv_text_color_setting.backgroundResource = R.drawable.bg_oval_text_checked
         tv_background_color_setting.backgroundResource = R.drawable.bg_oval_text_normal
+        when (textGravity) {
+            Gravity.START -> setGravityStart()
+            Gravity.CENTER_HORIZONTAL -> setGravityCenter()
+            Gravity.END -> setGravityEnd()
+        }
     }
 
     private fun bindClickListener() {
@@ -57,12 +63,15 @@ class PreviewMemoSettingDialog(context: Context, themeResId: Int) : Dialog(conte
             memoSettingListener?.onLineHeightReduce()
         }
         iv_font_alignment_left.setOnClickListener {
+            setGravityStart()
             memoSettingListener?.onAlignLeft()
         }
         iv_font_alignment_center.setOnClickListener {
+            setGravityCenter()
             memoSettingListener?.onAlignCenter()
         }
         iv_font_alignment_right.setOnClickListener {
+            setGravityEnd()
             memoSettingListener?.onAlignRight()
         }
         iv_draw_color.setOnClickListener {
@@ -127,6 +136,24 @@ class PreviewMemoSettingDialog(context: Context, themeResId: Int) : Dialog(conte
         } else {
             super.onBackPressed()
         }
+    }
+
+    private fun setGravityStart() {
+        iv_font_alignment_left.background = context.getDrawable(R.drawable.bg_circle_image_checked)
+        iv_font_alignment_center.background = context.getDrawable(R.drawable.bg_circle_image_normal)
+        iv_font_alignment_right.background = context.getDrawable(R.drawable.bg_circle_image_normal)
+    }
+
+    private fun setGravityCenter() {
+        iv_font_alignment_center.background = context.getDrawable(R.drawable.bg_circle_image_checked)
+        iv_font_alignment_left.background = context.getDrawable(R.drawable.bg_circle_image_normal)
+        iv_font_alignment_right.background = context.getDrawable(R.drawable.bg_circle_image_normal)
+    }
+
+    private fun setGravityEnd() {
+        iv_font_alignment_right.background = context.getDrawable(R.drawable.bg_circle_image_checked)
+        iv_font_alignment_center.background = context.getDrawable(R.drawable.bg_circle_image_normal)
+        iv_font_alignment_left.background = context.getDrawable(R.drawable.bg_circle_image_normal)
     }
 
     interface IMemoSettingListener {

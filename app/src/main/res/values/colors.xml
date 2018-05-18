@@ -13,4 +13,5 @@
     <color name="colorMemoCircleViewSelected">#A0A0A0</color>
     <color name="lineColor">#F9F9F9</color>
     <color name="colorFontMemoSetting">#65758B</color>
+    <color name="colorCheck">#8F0030</color>
 </resources>

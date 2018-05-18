@@ -69,6 +69,7 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
     private fun initPreviewMemoSettingDialog() {
         previewMemoSettingDialog = PreviewMemoSettingDialog(this@PreviewMemoActivity, R.style.PreviewMemoSettingDialog)
         previewMemoSettingDialog.sign = memoBean?.signFont ?: DEFAULT_SIGN
+        previewMemoSettingDialog.textGravity = memoBean?.gravity ?: DEFAULT_GRAVITY
         previewMemoSettingDialog.memoSettingListener = object : PreviewMemoSettingDialog.IMemoSettingListener {
             override fun onSignSet(sign: String) {
                 memoBean?.signFont = sign

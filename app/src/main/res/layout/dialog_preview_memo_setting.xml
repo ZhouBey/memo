@@ -124,7 +124,6 @@
                 android:layout_height="22dp"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="30dp"
-                android:background="@drawable/bg_circle_image"
                 android:src="@drawable/ic_align_left" />
 
             <ImageView
@@ -133,7 +132,6 @@
                 android:layout_height="22dp"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="17dp"
-                android:background="@drawable/bg_circle_image"
                 android:src="@drawable/ic_align_center" />
 
             <ImageView
@@ -142,7 +140,6 @@
                 android:layout_height="22dp"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="17dp"
-                android:background="@drawable/bg_circle_image"
                 android:src="@drawable/ic_align_right" />
         </LinearLayout>
 
@@ -171,7 +168,7 @@
                 android:layout_height="22dp"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="30dp"
-                android:background="@drawable/bg_circle_image"
+                android:background="@drawable/bg_circle_image_normal"
                 android:src="@drawable/ic_picker_color" />
 
         </LinearLayout>
