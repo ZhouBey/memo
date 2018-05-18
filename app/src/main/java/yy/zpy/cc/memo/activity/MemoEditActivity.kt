@@ -136,6 +136,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                     toast("内容不能为空")
                     return@setOnClickListener
                 }
+                saveMemo(memoContent)
                 startActivity<PreviewMemoActivity>("memoBeanID" to memoBeanID)
             } else {
                 finishStatus()
@@ -281,7 +282,8 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                             ).into(object : SimpleTarget<Drawable>() {
                                 override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
-                                    adjustImageView(this@MemoEditActivity, imageView, resource)
+                                    val baseWidth = getScreenWidth(this@MemoEditActivity) - dip(30)
+                                    adjustImageView(baseWidth, imageView, resource)
                                 }
 
                                 override fun onLoadFailed(errorDrawable: Drawable?) {
@@ -423,8 +425,8 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         if (resultCode == RESULT_OK && requestCode == Constant.REQUEST_CODE_CHOOSE) {
             val obtainResult = Matisse.obtainResult(data)
             val uri = obtainResult[0]
-            val RESULT_CROP_IMAGE_PATH = Environment.getExternalStorageDirectory().toString() + "/" + Constant.MEMO_PICTURES
-            val folderFile = File(RESULT_CROP_IMAGE_PATH)
+            val resultCropImagePath = Environment.getExternalStorageDirectory().toString() + "/" + Constant.MEMO_PICTURES
+            val folderFile = File(resultCropImagePath)
             if (!folderFile.exists()) {
                 folderFile.mkdirs()
             }
@@ -455,7 +457,8 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                         ).into(object : SimpleTarget<Drawable>() {
                             override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
-                                adjustImageView(this@MemoEditActivity, imageView, resource)
+                                val baseWidth = getScreenWidth(this@MemoEditActivity) - dip(30)
+                                adjustImageView(baseWidth, imageView, resource)
                             }
                         })
                 val currentEditText = ll_root_memo_content.getChildAt(selectEditTextIndex) as EditText
@@ -473,11 +476,17 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                     ll_root_memo_content.addView(imageView, selectEditTextIndex + 1)
                     ll_root_memo_content.addView(editText, selectEditTextIndex + 2)
                 }
-//                val lastChild = ll_root_memo_content.getChildAt(ll_root_memo_content.childCount - 1)
-//                if (lastChild is ImageViewWithDel) {
-//                    val editText = getEditText()
-//                    ll_root_memo_content.addView(editText)
-//                }
+                val lastChild = ll_root_memo_content.getChildAt(ll_root_memo_content.childCount - 1)
+                if (lastChild is ImageViewWithDel) {
+                    val editText = getEditText()
+                    ll_root_memo_content.addView(editText)
+                    doAsync {
+                        Thread.sleep(200)
+                        uiThread {
+                            showKeyboard(editText)
+                        }
+                    }
+                }
             } else {
                 logcat("data is null")
             }
@@ -545,13 +554,11 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     private fun getEditText(): EditText {
         return EditText(this@MemoEditActivity).apply {
             val lp = LinearLayout.LayoutParams(matchParent, wrapContent)
-//            lp.topMargin = dip(15)
             layoutParams = lp
             gravity = Gravity.TOP
             setLineSpacing(10F, 1F)
             textColor = R.color.colorFont
             textSize = 16f
-//            backgroundColor = Color.BLUE
             background = null
             setOnClickListener {
                 requestFocus()
@@ -563,7 +570,6 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     private fun getImageView(): ImageView {
         return ImageViewWithDel(this@MemoEditActivity).apply {
             val lp = LinearLayout.LayoutParams(matchParent, wrapContent)
-//            lp.topMargin = dip(15)
             layoutParams = lp
             scaleType = ImageView.ScaleType.FIT_XY
             setOnClickListener {
@@ -640,20 +646,18 @@ fun getDateDesc(calendar: Calendar): String {
     return ""
 }
 
-fun adjustImageView(context: Context, imageView: ImageView, resource: Drawable?) {
-    val width = getScreenWidth(context)
+fun adjustImageView(baseWidth: Int, imageView: ImageView, resource: Drawable?) {
     var height: Int by Delegates.notNull()
     val bitmapDrawable = resource as BitmapDrawable
     val bitmap = bitmapDrawable.bitmap
     var scale by Delegates.notNull<Float>()
-    if (bitmap.width >= width) {
-        scale = bitmap.width.toFloat() / width.toFloat()
+    if (bitmap.width >= baseWidth) {
+        scale = bitmap.width.toFloat() / baseWidth.toFloat()
         height = (bitmap.height / scale).toInt()
     } else {
-        scale = width.toFloat() / bitmap.width.toFloat()
+        scale = baseWidth.toFloat() / bitmap.width.toFloat()
         height = (bitmap.height * scale).toInt()
     }
-    logcat("height=" + height.toString())
     imageView.layoutParams.height = height
     imageView.setImageDrawable(resource)
 }

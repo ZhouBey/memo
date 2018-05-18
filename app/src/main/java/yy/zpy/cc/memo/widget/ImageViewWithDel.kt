@@ -15,7 +15,7 @@ import kotlin.properties.Delegates
  */
 class ImageViewWithDel : ImageView {
     var isSelect = false
-    var bitmap: Bitmap by Delegates.notNull<Bitmap>()
+    var bitmap: Bitmap by Delegates.notNull()
     var onDeleteClickListener: OnDeleteClickListener? = null
 
     constructor(context: Context) : this(context, null)
@@ -24,7 +24,7 @@ class ImageViewWithDel : ImageView {
         init()
     }
 
-    fun init() {
+    private fun init() {
         bitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_del_picture)
     }
 

@@ -17,6 +17,7 @@ import android.text.style.ForegroundColorSpan
 import android.view.Gravity
 import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -28,6 +29,7 @@ import org.jetbrains.anko.*
 import yy.zpy.cc.greendaolibrary.bean.MemoBean
 import yy.zpy.cc.memo.R
 import yy.zpy.cc.memo.dialog.PreviewMemoSettingDialog
+import yy.zpy.cc.memo.getScreenWidth
 import yy.zpy.cc.memo.interf.IBaseUI
 import yy.zpy.cc.memo.util.Constant
 import java.io.File
@@ -45,7 +47,7 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
         const val DEFAULT_LINE_HEIGHT = 10F
         const val DEFAULT_GRAVITY = Gravity.START
         const val DEFAULT_FONT_COLOR = "#3A3F45"
-        const val DEFAULT_BACKGROUND_COLOR = "#FFFFFF"
+        const val DEFAULT_BACKGROUND_COLOR = "#FEFFB3"
         const val DEFAULT_SIGN = "sign by LBT"
     }
 
@@ -255,12 +257,15 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
                     val imageID = matcher.group(3)
                     imageView.setTag(R.id.tag_image_view_uri, imageID)
                     ll_preview_memo_content.addView(imageView)
+                    val lp = imageView.layoutParams as LinearLayout.LayoutParams
+                    lp.topMargin = dip(12)
                     Glide.with(this@PreviewMemoActivity).load(File(Environment.getExternalStorageDirectory().toString() + "/" + Constant.MEMO_PICTURES + "/" + imageID + ".png"))
                             .apply(RequestOptions().error(R.drawable.img_error)
                                     .diskCacheStrategy(DiskCacheStrategy.NONE)
                             ).into(object : SimpleTarget<Drawable>() {
                                 override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
-                                    adjustImageView(this@PreviewMemoActivity, imageView, resource)
+                                    val baseWidth = getScreenWidth(this@PreviewMemoActivity) - dip(50)
+                                    adjustImageView(baseWidth, imageView, resource)
                                 }
 
                                 override fun onLoadFailed(errorDrawable: Drawable?) {
@@ -309,6 +314,8 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
                 memoBean?.fontSize = fontSize
                 memoBean?.lineHeight = lineHeight
                 ll_preview_memo_content.addView(textView)
+                val lp = textView.layoutParams as LinearLayout.LayoutParams
+                lp.topMargin = dip(12)
                 tv_preview_memo_sign.setTextColor(Color.parseColor(fontColor))
             }
         }
