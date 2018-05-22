@@ -255,7 +255,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             showMemoInfo(memoBean?.content ?: "")
         } else {
             val editFirst = getEditText()
-            editFirst.isCursorVisible = false
+//            editFirst.isCursorVisible = false
             editAddTextChangeListener(editFirst)
             ll_root_memo_content.addView(editFirst)
         }
@@ -277,6 +277,8 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                     val imageID = matcher.group(3)
                     imageView.setTag(R.id.tag_image_view_uri, imageID)
                     ll_root_memo_content.addView(imageView)
+                    val lp = imageView.layoutParams as LinearLayout.LayoutParams
+                    lp.topMargin = dip(12)
                     Glide.with(this@MemoEditActivity).load(File(Environment.getExternalStorageDirectory().toString() + "/" + Constant.MEMO_PICTURES + "/" + imageID + ".png"))
                             .apply(RequestOptions().error(R.drawable.img_error)
                                     .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -311,7 +313,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         ll_root_memo_content.addView(editText)
     }
 
-    fun initSelectFolderDialog() {
+    private fun initSelectFolderDialog() {
         selectFolderDialog = SelectFolderDialog(this, R.style.WhiteDialog)
         selectFolderDialog.onClickListener = object : SelectFolderDialog.OnClickListener {
             override fun itemClick(position: Int, type: Int) {
@@ -486,6 +488,11 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
                             showKeyboard(editText)
                         }
                     }
+                }
+                val indexOfChild = ll_root_memo_content.indexOfChild(imageView)
+                if (indexOfChild != 0) {
+                    val lp = imageView.layoutParams as LinearLayout.LayoutParams
+                    lp.topMargin = dip(12)
                 }
             } else {
                 logcat("data is null")
