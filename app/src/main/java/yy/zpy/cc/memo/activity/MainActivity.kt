@@ -607,7 +607,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         showMemoList()
         val coverPath = app.getSpValue(Constant.SP_COVER_PATH, "")
         Glide.with(this@MainActivity).load(coverPath)
-                .apply(RequestOptions().error(R.drawable.img_drawer_background)
+                .apply(RequestOptions().error(R.drawable.image_drawer)
                         .diskCacheStrategy(DiskCacheStrategy.NONE)
                 ).into(object : SimpleTarget<Drawable>() {
                     override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
@@ -788,7 +788,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                 val resultUri = UCrop.getOutput(data)
                 resultUri?.path?.run { app.putSpValue(Constant.SP_COVER_PATH, resultUri.path) }
                 Glide.with(this@MainActivity).load(resultUri)
-                        .apply(RequestOptions().error(R.drawable.img_drawer_background)
+                        .apply(RequestOptions().error(R.drawable.image_drawer)
                                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                         ).into(object : SimpleTarget<Drawable>() {
                             override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {

@@ -18,7 +18,7 @@
             android:layout_height="200dp"
             android:layout_alignParentTop="true"
             android:scaleType="centerCrop"
-            android:src="@drawable/img_drawer_background" />
+            android:src="@drawable/image_drawer" />
 
         <TextView
             android:id="@+id/tv_drawer_desc"

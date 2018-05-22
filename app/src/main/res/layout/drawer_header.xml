@@ -9,5 +9,5 @@
         android:id="@+id/imageView"
         android:scaleType="centerCrop"
         android:clickable="false"
-        android:src="@drawable/img_drawer_background" />
+        android:src="@drawable/image_drawer" />
 </FrameLayout>
