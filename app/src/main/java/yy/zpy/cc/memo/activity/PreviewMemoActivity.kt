@@ -161,6 +161,7 @@ class PreviewMemoActivity : BaseActivity(), IBaseUI {
                 setLineSpacing(firstChild.lineSpacingExtra, 1F)
                 gravity = firstChild.gravity
                 text = firstChild.text
+                layoutParams = firstChild.layoutParams
             }
             ll_preview_memo_content.addView(textView, 0)
         }
