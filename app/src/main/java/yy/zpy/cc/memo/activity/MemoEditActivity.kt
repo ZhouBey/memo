@@ -255,7 +255,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             showMemoInfo(memoBean?.content ?: "")
         } else {
             val editFirst = getEditText()
-//            editFirst.isCursorVisible = false
+            editFirst.isCursorVisible = false
             editAddTextChangeListener(editFirst)
             ll_root_memo_content.addView(editFirst)
         }
