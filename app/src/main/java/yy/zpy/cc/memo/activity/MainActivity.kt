@@ -763,8 +763,8 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         if (resultCode == RESULT_OK && requestCode == Constant.REQUEST_CODE_CHOOSE) {
             val obtainResult = Matisse.obtainResult(data)
             val uri = obtainResult[0]
-            val RESULT_CROP_IMAGE_PATH = Environment.getExternalStorageDirectory().toString() + "/" + Constant.MEMO_PICTURES
-            val folderFile = File(RESULT_CROP_IMAGE_PATH)
+            val resultCropImagePath = Environment.getExternalStorageDirectory().toString() + "/" + Constant.MEMO_PICTURES
+            val folderFile = File(resultCropImagePath)
             if (!folderFile.exists()) {
                 folderFile.mkdirs()
             }

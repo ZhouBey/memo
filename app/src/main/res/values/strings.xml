@@ -6,5 +6,24 @@
     <string name="about">关于</string>
     <string name="open">打开</string>
     <string name="close">关闭</string>
+    <string name="delete">删除</string>
+    <string name="please_input_keyword">请输入关键字</string>
+    <string name="the_best_memo">好记性不如蓝笔头</string>
+    <string name="preview">预览</string>
+    <string name="font_size">字号</string>
+    <string name="reduce_font_size">A-</string>
+    <string name="add_font_size">A+</string>
+    <string name="font_line_height">行高</string>
+    <string name="reduce_line_height">L-</string>
+    <string name="add_line_height">L+</string>
+    <string name="font_gravity">对齐</string>
+    <string name="color">颜色</string>
+    <string name="other">其他</string>
+    <string name="bottom_sign">底部签名</string>
+    <string name="text">文字</string>
+    <string name="background">背景</string>
+    <string name="sure">确定</string>
+    <string name="folder">标签文件夹</string>
+    <string name="create_new_folder">新建文件夹</string>
     <item name="tag_image_view_uri" type="id" />
 </resources>

@@ -2,9 +2,9 @@ package yy.zpy.cc.memo.widget
 
 import android.content.Context
 import android.graphics.*
+import android.support.v7.widget.AppCompatImageView
 import android.util.AttributeSet
 import android.view.MotionEvent
-import android.widget.ImageView
 import org.jetbrains.anko.dip
 import yy.zpy.cc.memo.R
 import kotlin.properties.Delegates
@@ -13,9 +13,9 @@ import kotlin.properties.Delegates
 /**
  * Created by zpy on 2017/10/12.
  */
-class ImageViewWithDel : ImageView {
+class ImageViewWithDel : AppCompatImageView {
     var isSelect = false
-    var bitmap: Bitmap by Delegates.notNull()
+    private var bitmap: Bitmap by Delegates.notNull()
     var onDeleteClickListener: OnDeleteClickListener? = null
 
     constructor(context: Context) : this(context, null)

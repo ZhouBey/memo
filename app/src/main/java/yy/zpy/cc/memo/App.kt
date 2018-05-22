@@ -31,10 +31,9 @@ class App : Application() {
         private set
     var folderBeanDao: FolderBeanDao? = null
         private set
-    var imageBeanDao: ImageBeanDao? = null
-        private set
+    private var imageBeanDao: ImageBeanDao? = null
 
-    var sp: SharedPreferences by Delegates.notNull<SharedPreferences>()
+    private var sp: SharedPreferences by Delegates.notNull()
 
     override fun onCreate() {
         super.onCreate()
@@ -56,10 +55,10 @@ class App : Application() {
     private val isMainProcess: Boolean
         get() {
             val am = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-            val processInfos = am.runningAppProcesses
+            val processInfo = am.runningAppProcesses
             val mainProcessName = packageName
             val myPid = android.os.Process.myPid()
-            return processInfos.any { it.pid == myPid && mainProcessName == it.processName }
+            return processInfo.any { it.pid == myPid && mainProcessName == it.processName }
         }
 
     @SuppressLint("CommitPrefEdits")
@@ -88,7 +87,7 @@ class App : Application() {
     }
 
     companion object {
-        var instance: App by Delegates.notNull<App>()
+        var instance: App by Delegates.notNull()
             private set
     }
 

@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:gravity="center_vertical"
-        android:text="标签文件夹"
+        android:text="@string/folder"
         android:textColor="@color/colorFont"
         android:textSize="13sp" />
 
@@ -28,7 +28,7 @@
         android:gravity="center_vertical"
         android:paddingEnd="10dp"
         android:paddingStart="10dp"
-        android:text="新建文件夹"
+        android:text="@string/create_new_folder"
         android:textColor="@color/colorFont"
         android:textSize="13sp" />
 </LinearLayout>

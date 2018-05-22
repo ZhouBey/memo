@@ -66,17 +66,17 @@ import kotlin.properties.Delegates
 @RuntimePermissions
 class MemoEditActivity : BaseActivity(), IBaseUI {
     override fun getLayout() = R.layout.activity_edit_memo
-    var lockStatus = false
+    private var lockStatus = false
     var keyboardShowChangeListener = KeyboardShowChangeListener()
-    var globalListener by Delegates.notNull<ViewTreeObserver.OnGlobalLayoutListener>()
+    private var globalListener by Delegates.notNull<ViewTreeObserver.OnGlobalLayoutListener>()
     var decorView: View? = null
     var selectFolderDialog by Delegates.notNull<SelectFolderDialog>()
-    var isFinish = false
+    private var isFinish = false
     var selectFolderID = 1L
     val folderDataList = mutableListOf<Folder>()
-    var memoBean: MemoBean? = null
-    var memoBeanID = -1L
-    var selectEditTextIndex = -1
+    private var memoBean: MemoBean? = null
+    private var memoBeanID = -1L
+    private var selectEditTextIndex = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -622,14 +622,14 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         overridePendingTransition(R.anim.anim_slide_no, R.anim.anim_slide_out_right)
     }
 
-    fun removeLastEmptyEditText() {
-        val view = ll_root_memo_content.getChildAt(ll_root_memo_content.childCount - 1)
-        if (view is EditText) {
-            if (TextUtils.isEmpty(view.text)) {
-                ll_root_memo_content.removeViewAt(ll_root_memo_content.childCount - 1)
-            }
-        }
-    }
+//    fun removeLastEmptyEditText() {
+//        val view = ll_root_memo_content.getChildAt(ll_root_memo_content.childCount - 1)
+//        if (view is EditText) {
+//            if (TextUtils.isEmpty(view.text)) {
+//                ll_root_memo_content.removeViewAt(ll_root_memo_content.childCount - 1)
+//            }
+//        }
+//    }
 }
 
 fun getDateDesc(calendar: Calendar): String {

@@ -12,10 +12,10 @@ import org.jetbrains.anko.dip
  */
 
 class CircleView : View {
-    var paint = Paint()
-    var paintNum = Paint(Paint.ANTI_ALIAS_FLAG)
-    val rectF = RectF()
-    var txt = ""
+    private var paint = Paint()
+    private var paintNum = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val rectF = RectF()
+    private var txt = ""
     var color: Int = 0
     var image: Bitmap? = null
 

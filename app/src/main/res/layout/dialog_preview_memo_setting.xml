@@ -16,13 +16,14 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:orientation="horizontal"
-            android:paddingStart="20dp">
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="字号"
+                android:text="@string/font_size"
                 android:textColor="@color/colorFontMemoSetting"
                 android:textSize="15sp" />
 
@@ -34,7 +35,7 @@
                 android:layout_marginStart="30dp"
                 android:background="@drawable/bg_circle_text"
                 android:gravity="center"
-                android:text="A-"
+                android:text="@string/reduce_font_size"
                 android:textColor="@color/colorFontMemoSetting"
                 android:textSize="10sp"
                 tools:ignore="SmallSp" />
@@ -47,7 +48,7 @@
                 android:layout_marginStart="17dp"
                 android:background="@drawable/bg_circle_text"
                 android:gravity="center"
-                android:text="A+"
+                android:text="@string/add_font_size"
                 android:textColor="@color/colorFontMemoSetting"
                 android:textSize="10sp"
                 tools:ignore="SmallSp" />
@@ -62,13 +63,14 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:orientation="horizontal"
-            android:paddingStart="20dp">
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="行高"
+                android:text="@string/font_line_height"
                 android:textColor="@color/colorFontMemoSetting"
                 android:textSize="15sp" />
 
@@ -80,7 +82,7 @@
                 android:layout_marginStart="30dp"
                 android:background="@drawable/bg_circle_text"
                 android:gravity="center"
-                android:text="L-"
+                android:text="@string/reduce_line_height"
                 android:textColor="@color/colorFontMemoSetting"
                 android:textSize="10sp"
                 tools:ignore="SmallSp" />
@@ -93,7 +95,7 @@
                 android:layout_marginStart="17dp"
                 android:background="@drawable/bg_circle_text"
                 android:gravity="center"
-                android:text="L+"
+                android:text="@string/add_line_height"
                 android:textColor="@color/colorFontMemoSetting"
                 android:textSize="10sp"
                 tools:ignore="SmallSp" />
@@ -108,13 +110,14 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:orientation="horizontal"
-            android:paddingStart="20dp">
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="对齐"
+                android:text="@string/font_gravity"
                 android:textColor="@color/colorFontMemoSetting"
                 android:textSize="15sp" />
 
@@ -152,13 +155,14 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:orientation="horizontal"
-            android:paddingStart="20dp">
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="颜色"
+                android:text="@string/color"
                 android:textColor="@color/colorFontMemoSetting"
                 android:textSize="15sp" />
 
@@ -182,13 +186,14 @@
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:orientation="horizontal"
-            android:paddingStart="20dp">
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:text="其他"
+                android:text="@string/other"
                 android:textColor="@color/colorFontMemoSetting"
                 android:textSize="15sp" />
 
@@ -199,7 +204,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="30dp"
                 android:background="@drawable/bg_oval_text_normal"
-                android:text="底部签名"
+                android:text="@string/bottom_sign"
                 android:textColor="@color/colorFont"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -210,7 +215,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:baselineAligned="false">
 
         <RelativeLayout
             android:layout_width="0dp"
@@ -228,7 +234,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-                    android:text="文字"
+                    android:text="@string/text"
                     android:textColor="@color/colorFont"
                     android:textSize="13sp" />
 
@@ -238,7 +244,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="20dp"
-                    android:text="背景"
+                    android:text="@string/background"
                     android:textColor="@color/colorFont"
                     android:textSize="13sp" />
             </LinearLayout>
@@ -329,7 +335,7 @@
                 android:layout_height="45dp"
                 android:layout_marginTop="30dp"
                 android:background="@color/colorPrimary"
-                android:text="确定"
+                android:text="@string/sure"
                 android:textColor="@color/colorWhite"
                 android:textSize="14sp" />
         </LinearLayout>
