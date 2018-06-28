@@ -128,6 +128,16 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         iv_lock_status.setOnClickListener {
             lockStatus = !lockStatus
             iv_lock_status.isSelected = lockStatus
+            if (lockStatus && !app.getSpValue(Constant.SP_IS_MEMO_LOCK, false)) {
+                alert("您需要去设置里开启便签加锁才能生效", "提示") {
+                    positiveButton("设置") {
+                        startActivity<SettingActivity>()
+                    }
+                    negativeButton("取消") {
+
+                    }
+                }.show()
+            }
         }
         ll_select_fold.setOnClickListener {
             selectFolderDialog.data = folderDataList
@@ -219,7 +229,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         if (memo != null) {
             memoBean = memo as MemoBean
             memoBeanID = memoBean?.id ?: -1L
-            if (app.getSpValue(Constant.SP_IS_MEMO_LOCK,false) && memoBean?.isLock() == true) {
+            if (app.getSpValue(Constant.SP_IS_MEMO_LOCK, false) && memoBean?.isLock() == true) {
                 startActivityForResult<LockActivity>(REQUEST_VERIFY_CODE, LockActivity.TYPE to LockActivity.TYPE_VERIFY)
             }
         }
