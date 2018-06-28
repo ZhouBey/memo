@@ -14,4 +14,6 @@
     <color name="lineColor">#F9F9F9</color>
     <color name="colorFontMemoSetting">#65758B</color>
     <color name="colorCheck">#8F0030</color>
+    <color name="colorGreen">#00CD00</color>
+    <color name="colorRedMsg">#FA1A0A</color>
 </resources>
