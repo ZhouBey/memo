@@ -32,10 +32,35 @@
             android:textColor="@color/colorWhite" />
 
         <LinearLayout
-            android:id="@+id/rl_drawer_create_folder"
+            android:id="@+id/rl_drawer_setting"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@id/tv_drawer_desc"
+            android:background="?android:attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingBottom="15dp"
+            android:paddingEnd="25dp"
+            android:paddingStart="25dp"
+            android:paddingTop="15dp">
+
+            <ImageView
+                android:layout_width="17dp"
+                android:layout_height="17dp"
+                android:src="@drawable/ic_setting" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="30dp"
+                android:text="@string/settings" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/rl_drawer_create_folder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/rl_drawer_setting"
             android:background="?android:attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"

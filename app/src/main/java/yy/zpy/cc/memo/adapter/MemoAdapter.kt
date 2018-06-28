@@ -21,6 +21,9 @@ import java.util.regex.Pattern
  */
 class MemoAdapter(val data: List<Memo>, private var itemClickBlock: (position: Int, type: Int) -> Unit,
                   private var itemLongClickBlock: (position: Int, type: Int) -> Unit, private var needYear: Boolean = false) : RecyclerView.Adapter<MemoAdapter.ViewHolder>() {
+
+    var isSetLock = false
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val viewHolder = ViewHolder(parent.inflate(R.layout.layout_memo_list_item))
         viewHolder.itemClickListen { position, type ->
@@ -66,9 +69,15 @@ class MemoAdapter(val data: List<Memo>, private var itemClickBlock: (position: I
             } else {
                 iv_item_picture.visibility = View.INVISIBLE
             }
-            var body = content.substring(title.length, content.length)
-            body = if (TextUtils.isEmpty(body)) title else body
-            tv_item_content.text = body.replace(Constant.REGEX_IMAGE_TAG.toRegex(), "<image>").trim()
+            val isLock = data[position].memoBean.getIsLock()
+            tv_item_content.text = if (isLock && isSetLock) {
+                Constant.LOCK_MEMO_CONTENT
+            } else {
+                var body = content.substring(title.length, content.length)
+                body = if (TextUtils.isEmpty(body)) title else body
+                body.replace(Constant.REGEX_IMAGE_TAG.toRegex(), "<image>").trim()
+                body
+            }
             if (!hasSelect) {
                 val outValue = TypedValue()
                 context.theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)

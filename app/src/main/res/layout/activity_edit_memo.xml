@@ -87,8 +87,8 @@
             android:background="?android:attr/selectableItemBackground"
             android:focusable="true"
             android:orientation="horizontal"
-            android:paddingStart="7dp"
-            android:paddingEnd="4dp">
+            android:paddingEnd="4dp"
+            android:paddingStart="7dp">
 
             <TextView
                 android:id="@+id/tv_select_fold"
@@ -109,13 +109,13 @@
 
         <ImageView
             android:id="@+id/iv_lock_status"
-            android:layout_width="14dp"
-            android:layout_height="14dp"
+            android:layout_width="13dp"
+            android:layout_height="13dp"
             android:layout_centerVertical="true"
             android:layout_marginEnd="20dp"
             android:layout_toStartOf="@id/ll_select_fold"
             android:src="@drawable/bg_memo_lock_status"
-            android:visibility="gone" />
+            android:visibility="visible" />
 
 
     </RelativeLayout>

@@ -78,6 +78,10 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
     private var memoBeanID = -1L
     private var selectEditTextIndex = -1
 
+    companion object {
+        const val REQUEST_VERIFY_CODE = 101
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         initView()
@@ -178,12 +182,14 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             memoBean.content = content
             memoBean.greenDaoType = GreenDaoType.TEXT
             memoBean.folderID = selectFolderID
+            memoBean.setLock(lockStatus)
             memoBeanID = app.memoBeanDao?.insert(memoBean) ?: -1L
         } else {
             val memoBean = app.memoBeanDao?.load(memoBeanID)
             memoBean?.content = content
             memoBean?.updateTime = System.currentTimeMillis()
             memoBean?.folderID = selectFolderID
+            memoBean?.setLock(lockStatus)
             app.memoBeanDao?.update(memoBean)
         }
     }
@@ -213,7 +219,9 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         if (memo != null) {
             memoBean = memo as MemoBean
             memoBeanID = memoBean?.id ?: -1L
-            logcat(memoBean.toString())
+            if (app.getSpValue(Constant.SP_IS_MEMO_LOCK,false) && memoBean?.isLock() == true) {
+                startActivityForResult<LockActivity>(REQUEST_VERIFY_CODE, LockActivity.TYPE to LockActivity.TYPE_VERIFY)
+            }
         }
         val folderBeanList = getFolderAllData()
         folderBeanList.forEach {
@@ -253,12 +261,15 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
         initSelectFolderDialog()
         if (memoBean != null) {
             showMemoInfo(memoBean?.content ?: "")
+            lockStatus = memoBean?.getIsLock() ?: false
         } else {
             val editFirst = getEditText()
             editFirst.isCursorVisible = false
             editAddTextChangeListener(editFirst)
             ll_root_memo_content.addView(editFirst)
+            lockStatus = false
         }
+        iv_lock_status.isSelected = lockStatus
     }
 
     override fun show() {
@@ -497,6 +508,9 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             } else {
                 logcat("data is null")
             }
+        }
+        if (REQUEST_VERIFY_CODE == requestCode && Constant.RESULT_OK_CODE != resultCode) {
+            this.finish()
         }
     }
 

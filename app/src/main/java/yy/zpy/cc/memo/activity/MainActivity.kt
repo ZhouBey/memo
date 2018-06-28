@@ -43,6 +43,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main_content.*
 import kotlinx.android.synthetic.main.activity_main_drawer.*
 import kotlinx.android.synthetic.main.content_main.*
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.*
 import permissions.dispatcher.*
 import yy.zpy.cc.greendaolibrary.bean.*
@@ -54,6 +57,7 @@ import yy.zpy.cc.memo.custom.MyGlideEngine
 import yy.zpy.cc.memo.data.Folder
 import yy.zpy.cc.memo.data.Memo
 import yy.zpy.cc.memo.dialog.SelectFolderDialog
+import yy.zpy.cc.memo.eventBus.AdapterNotifyDataEvent
 import yy.zpy.cc.memo.interf.IBaseUI
 import yy.zpy.cc.memo.interf.IKeyboardShowChangeListener
 import yy.zpy.cc.memo.logcat
@@ -228,6 +232,10 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                 }
             }
         })
+        rl_drawer_setting.setOnClickListener {
+            drawer_layout.closeDrawers()
+            startActivity<SettingActivity>()
+        }
     }
 
     override fun initView() {
@@ -387,9 +395,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                                 }
                             }.show()
                         } else {
-                            startActivity<MemoEditActivity>(
-                                    "memo" to (memoData[position].memoBean)
-                            )
+                            startActivity<MemoEditActivity>("memo" to (memoData[position].memoBean))
                             overridePendingTransition(R.anim.anim_slide_in_right, R.anim.anim_slide_no)
                         }
                     } else {
@@ -402,6 +408,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
                     }
                     memoAdapterNotifyDataSetChanged(position)
                 })
+        memoAdapter.isSetLock = app.getSpValue(Constant.SP_IS_MEMO_LOCK, false)
         rv_memo_list.layoutManager = LinearLayoutManager(this@MainActivity)
         rv_memo_list.adapter = memoAdapter
         rv_memo_list.addItemDecoration(dividerItemDecoration)
@@ -504,7 +511,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
 
     fun memoBrowseStatus() {
         memoStatus = MEMO_BROWSE_STATUS
-        iv_memo_search.visibility = View.VISIBLE
+        ll_action_bar_operate.visibility = View.VISIBLE
         ll_memo_operate.visibility = View.GONE
         iv_cancel_memo_operate.visibility = View.GONE
         et_search_content.visibility = View.GONE
@@ -526,7 +533,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         memoStatus = MEMO_SEARCH_STATUS
         drawerToggle.isDrawerIndicatorEnabled = false
         et_search_content.visibility = View.VISIBLE
-        iv_memo_search.visibility = View.GONE
+        ll_action_bar_operate.visibility = View.GONE
         ll_memo_operate.visibility = View.GONE
         tv_select_folder_name.visibility = View.GONE
         iv_cancel_memo_operate.visibility = View.VISIBLE
@@ -535,7 +542,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
 
     private fun memoOperateStatus() {
         memoStatus = MEMO_OPERATE_STATUS
-        iv_memo_search.visibility = View.GONE
+        ll_action_bar_operate.visibility = View.GONE
         ll_memo_operate.visibility = View.VISIBLE
         iv_cancel_memo_operate.visibility = View.VISIBLE
         et_search_content.visibility = View.GONE
@@ -809,6 +816,24 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
         override fun keyboardHidden() {
 //            memoBrowseStatus()
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (!EventBus.getDefault().isRegistered(this@MainActivity)) {
+            EventBus.getDefault().register(this@MainActivity)
+        }
+    }
+
+    override fun onDestroy() {
+        EventBus.getDefault().unregister(this@MainActivity)
+        super.onDestroy()
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onAdapterNotifyDataEvent(event: AdapterNotifyDataEvent) {
+        memoAdapter.isSetLock = app.getSpValue(Constant.SP_IS_MEMO_LOCK, false)
+        memoAdapter.notifyDataSetChanged()
     }
 }
 
