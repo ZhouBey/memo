@@ -23,6 +23,7 @@ import yy.zpy.cc.memo.R
 import yy.zpy.cc.memo.interf.IBaseUI
 import yy.zpy.cc.memo.logcat
 import yy.zpy.cc.memo.util.Constant
+import yy.zpy.cc.memo.util.MD5
 import java.io.IOException
 import java.security.*
 import java.security.cert.CertificateException
@@ -54,6 +55,7 @@ open class LockActivity : BaseActivity(), IBaseUI {
     override fun initView() {
         StatusBarCompat.setStatusBarColor(this, resources.getColor(R.color.colorPrimary))
         plv_memo.attachIndicatorDots(indicator_dots)
+        indicator_dots.pinLength = 6
         type = intent.getIntExtra(TYPE, TYPE_VERIFY)
         if (TYPE_ADD == type) {
             //添加密码
@@ -157,7 +159,7 @@ open class LockActivity : BaseActivity(), IBaseUI {
                         if (password == repeatPassword) {
                             tv_tip_desc.text = "设置成功"
                             tv_tip_desc.textColor = resources.getColor(R.color.colorGreen)
-                            app.putSpValue(Constant.SP_MEMO_LOCK_PASSWORD, password)
+                            app.putSpValue(Constant.SP_MEMO_LOCK_PASSWORD, MD5.md5(password))
                             setResult(Constant.RESULT_OK_CODE)
                             this@LockActivity.finish()
                         } else {
@@ -167,7 +169,7 @@ open class LockActivity : BaseActivity(), IBaseUI {
                     }
                 } else {
                     val password = app.getSpValue(Constant.SP_MEMO_LOCK_PASSWORD, "")
-                    if (password == pin) {
+                    if (password == MD5.md5(pin)) {
                         tv_tip_desc.text = "验证成功"
                         tv_tip_desc.textColor = resources.getColor(R.color.colorGreen)
                         setResult(Constant.RESULT_OK_CODE)

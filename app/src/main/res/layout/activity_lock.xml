@@ -13,7 +13,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="15dp"
         app:keypadButtonSize="70dp"
-        app:keypadTextSize="22dp" />
+        app:keypadTextSize="22dp"
+        app:pinLength="6"/>
 
     <com.andrognito.pinlockview.IndicatorDots
         android:id="@+id/indicator_dots"

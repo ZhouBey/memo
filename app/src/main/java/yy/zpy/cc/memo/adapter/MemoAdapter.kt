@@ -81,10 +81,8 @@ class MemoAdapter(val data: List<Memo>, private var itemClickBlock: (position: I
                 if (Pattern.compile(Constant.REGEX_IMAGE_TAG).matcher(content).find()) {
                     iv_item_picture.visibility = View.VISIBLE
                     iv_item_picture.imageResource = R.drawable.ic_memo_picture
-                    logcat("8888")
                 } else {
                     iv_item_picture.visibility = View.INVISIBLE
-                    logcat("fuck")
                 }
             }
             if (!hasSelect) {
