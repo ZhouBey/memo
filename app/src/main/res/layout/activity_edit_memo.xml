@@ -109,11 +109,12 @@
 
         <ImageView
             android:id="@+id/iv_lock_status"
-            android:layout_width="13dp"
-            android:layout_height="13dp"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
             android:layout_centerVertical="true"
-            android:layout_marginEnd="20dp"
+            android:layout_marginEnd="10dp"
             android:layout_toStartOf="@id/ll_select_fold"
+            android:padding="6.5dp"
             android:src="@drawable/bg_memo_lock_status"
             android:visibility="visible" />
 
