@@ -27,8 +27,7 @@
         android:layout_height="17dp"
         android:layout_alignEnd="@id/tv_item_time"
         android:layout_below="@id/tv_item_time"
-        android:layout_marginTop="10dp"
-        android:src="@drawable/ic_memo_picture" />
+        android:layout_marginTop="10dp" />
 
     <TextView
         android:id="@+id/tv_item_title"

@@ -9,9 +9,11 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.layout_memo_list_item.view.*
 import org.jetbrains.anko.backgroundColor
+import org.jetbrains.anko.imageResource
 import yy.zpy.cc.memo.R
 import yy.zpy.cc.memo.activity.getDateDesc
 import yy.zpy.cc.memo.data.Memo
+import yy.zpy.cc.memo.logcat
 import yy.zpy.cc.memo.util.Constant
 import java.util.*
 import java.util.regex.Pattern
@@ -64,19 +66,26 @@ class MemoAdapter(val data: List<Memo>, private var itemClickBlock: (position: I
             } else {
                 tv_item_time.text = String.format("%s%s", dateDesc, DateFormat.format("HH:mm", time).toString())
             }
-            if (Pattern.compile(Constant.REGEX_IMAGE_TAG).matcher(content).find()) {
-                iv_item_picture.visibility = View.VISIBLE
-            } else {
-                iv_item_picture.visibility = View.INVISIBLE
-            }
+
             val isLock = data[position].memoBean.getIsLock()
-            tv_item_content.text = if (isLock && isSetLock) {
-                Constant.LOCK_MEMO_CONTENT
+            if (isLock && isSetLock) {
+                tv_item_content.text = Constant.LOCK_MEMO_CONTENT
+                iv_item_picture.visibility = View.VISIBLE
+                iv_item_picture.imageResource = R.drawable.ic_lock
             } else {
                 var body = content.substring(title.length, content.length)
                 body = if (TextUtils.isEmpty(body)) title else body
                 body.replace(Constant.REGEX_IMAGE_TAG.toRegex(), "<image>").trim()
-                body
+                tv_item_content.text = body
+
+                if (Pattern.compile(Constant.REGEX_IMAGE_TAG).matcher(content).find()) {
+                    iv_item_picture.visibility = View.VISIBLE
+                    iv_item_picture.imageResource = R.drawable.ic_memo_picture
+                    logcat("8888")
+                } else {
+                    iv_item_picture.visibility = View.INVISIBLE
+                    logcat("fuck")
+                }
             }
             if (!hasSelect) {
                 val outValue = TypedValue()
