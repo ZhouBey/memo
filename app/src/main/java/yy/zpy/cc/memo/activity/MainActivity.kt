@@ -48,6 +48,7 @@ import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
 import org.jetbrains.anko.*
 import permissions.dispatcher.*
+import qiu.niorgai.StatusBarCompat
 import yy.zpy.cc.greendaolibrary.bean.*
 import yy.zpy.cc.memo.App
 import yy.zpy.cc.memo.R
@@ -92,6 +93,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        StatusBarCompat.setStatusBarColor(this@MainActivity, resources.getColor(R.color.colorPrimary))
         setSupportActionBar(toolbar_main)
         initView()
         viewListener()

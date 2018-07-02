@@ -214,13 +214,6 @@ open class LockActivity : BaseActivity(), IBaseUI {
         val keyGenerator: KeyGenerator
         try {
             keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
-        } catch (e: NoSuchAlgorithmException) {
-            throw RuntimeException("Failed to get KeyGenerator instance", e)
-        } catch (e: NoSuchProviderException) {
-            throw RuntimeException("Failed to get KeyGenerator instance", e)
-        }
-
-        try {
             keyStore?.load(null)
             keyGenerator.init(KeyGenParameterSpec.Builder(KEY_NAME, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
                     .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
@@ -229,15 +222,10 @@ open class LockActivity : BaseActivity(), IBaseUI {
                     .build())
             keyGenerator.generateKey()
         } catch (e: NoSuchAlgorithmException) {
-            throw RuntimeException(e)
-        } catch (e: InvalidAlgorithmParameterException) {
-            throw RuntimeException(e)
-        } catch (e: CertificateException) {
-            throw RuntimeException(e)
-        } catch (e: IOException) {
-            throw RuntimeException(e)
+//            throw RuntimeException("Failed to get KeyGenerator instance", e)
+        } catch (e: NoSuchProviderException) {
+//            throw RuntimeException("Failed to get KeyGenerator instance", e)
         }
-
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -247,9 +235,9 @@ open class LockActivity : BaseActivity(), IBaseUI {
                     + KeyProperties.BLOCK_MODE_CBC + "/"
                     + KeyProperties.ENCRYPTION_PADDING_PKCS7)
         } catch (e: NoSuchAlgorithmException) {
-            throw RuntimeException("Failed to get Cipher", e)
+//            throw RuntimeException("Failed to get Cipher", e)
         } catch (e: NoSuchPaddingException) {
-            throw RuntimeException("Failed to get Cipher", e)
+//            throw RuntimeException("Failed to get Cipher", e)
         }
 
         try {
@@ -262,17 +250,18 @@ open class LockActivity : BaseActivity(), IBaseUI {
         } catch (e: KeyPermanentlyInvalidatedException) {
             return false
         } catch (e: KeyStoreException) {
-            throw RuntimeException("Failed to init Cipher", e)
+//            throw RuntimeException("Failed to init Cipher", e)
         } catch (e: CertificateException) {
-            throw RuntimeException("Failed to init Cipher", e)
+//            throw RuntimeException("Failed to init Cipher", e)
         } catch (e: UnrecoverableKeyException) {
-            throw RuntimeException("Failed to init Cipher", e)
+//            throw RuntimeException("Failed to init Cipher", e)
         } catch (e: IOException) {
-            throw RuntimeException("Failed to init Cipher", e)
+//            throw RuntimeException("Failed to init Cipher", e)
         } catch (e: NoSuchAlgorithmException) {
-            throw RuntimeException("Failed to init Cipher", e)
+//            throw RuntimeException("Failed to init Cipher", e)
         } catch (e: InvalidKeyException) {
-            throw RuntimeException("Failed to init Cipher", e)
+//            throw RuntimeException("Failed to init Cipher", e)
         }
+        return false
     }
 }
