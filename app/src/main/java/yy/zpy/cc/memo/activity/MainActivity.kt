@@ -720,7 +720,7 @@ class MainActivity : BaseActivity(), IBaseUI, NavigationView.OnNavigationItemSel
     @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
     fun pickerPicture() {
         Matisse.from(this@MainActivity)
-                .choose(MimeType.allOf())
+                .choose(MimeType.ofAll())
                 .theme(R.style.Memo_Zhihu)
                 .countable(true)
                 .maxSelectable(1)

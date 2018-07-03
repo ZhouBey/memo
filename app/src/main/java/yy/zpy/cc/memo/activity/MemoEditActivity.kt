@@ -535,7 +535,7 @@ class MemoEditActivity : BaseActivity(), IBaseUI {
             selectEditTextIndex = ll_root_memo_content.childCount - 1
         }
         Matisse.from(this@MemoEditActivity)
-                .choose(MimeType.allOf())
+                .choose(MimeType.ofAll())
                 .theme(R.style.Memo_Zhihu)
                 .countable(true)
                 .maxSelectable(1)

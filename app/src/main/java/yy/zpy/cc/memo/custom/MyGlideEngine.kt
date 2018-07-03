@@ -15,7 +15,15 @@ import com.zhihu.matisse.engine.ImageEngine
  * Created by zpy on 2017/9/26.
  */
 class MyGlideEngine : ImageEngine {
-    override fun loadAnimatedGifThumbnail(context: Context, resize: Int, placeholder: Drawable?, imageView: ImageView, uri: Uri?) {
+    override fun loadGifImage(context: Context, resizeX: Int, resizeY: Int, imageView: ImageView, uri: Uri?) {
+        Glide.with(context)
+                .asGif()
+                .load(uri)
+                .apply(RequestOptions().priority(Priority.HIGH).override(resizeX, resizeY).centerCrop())
+                .into(imageView)
+    }
+
+    override fun loadGifThumbnail(context: Context, resize: Int, placeholder: Drawable?, imageView: ImageView, uri: Uri?) {
         Glide.with(context)
                 .asBitmap()
                 .load(uri)
@@ -29,14 +37,6 @@ class MyGlideEngine : ImageEngine {
                 .load(uri)
                 .apply(RequestOptions().priority(Priority.HIGH).override(resizeX, resizeY).centerCrop())
                 .transition(DrawableTransitionOptions().crossFade(300))
-                .into(imageView)
-    }
-
-    override fun loadAnimatedGifImage(context: Context, resizeX: Int, resizeY: Int, imageView: ImageView, uri: Uri?) {
-        Glide.with(context)
-                .asGif()
-                .load(uri)
-                .apply(RequestOptions().priority(Priority.HIGH).override(resizeX, resizeY).centerCrop())
                 .into(imageView)
     }
 

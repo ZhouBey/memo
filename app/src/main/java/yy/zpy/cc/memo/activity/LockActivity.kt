@@ -18,6 +18,7 @@ import android.widget.Toast
 import com.andrognito.pinlockview.PinLockListener
 import kotlinx.android.synthetic.main.activity_lock.*
 import org.jetbrains.anko.textColor
+import org.jetbrains.anko.toast
 import qiu.niorgai.StatusBarCompat
 import yy.zpy.cc.memo.R
 import yy.zpy.cc.memo.interf.IBaseUI
@@ -63,25 +64,24 @@ open class LockActivity : BaseActivity(), IBaseUI {
             tv_tip_desc.text = "请输入6位密码"
         } else {
             //验证密码
+            iv_fingerprint.visibility = View.GONE
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                iv_fingerprint.visibility = View.VISIBLE
                 val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
                 fingerprintManager = getSystemService(Context.FINGERPRINT_SERVICE) as FingerprintManager
                 if (!keyguardManager.isKeyguardSecure) {
-                    Toast.makeText(this, "Lock screen security not enabled in Settings", Toast.LENGTH_LONG).show()
-                    finish()
+                    return
                 }
 
                 if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "Fingerprint authentication permission not enabled", Toast.LENGTH_LONG).show()
-                    finish()
+                    return
                 }
 
                 if (fingerprintManager?.hasEnrolledFingerprints() != true) {
-                    Toast.makeText(this, "Register at least one fingerprint in Settings", Toast.LENGTH_LONG).show()
-                    finish()
+                    toast("您还没有录入指纹，只能使用数字密码")
+                    return
                 }
 
+                iv_fingerprint.visibility = View.VISIBLE
                 generateKey()
                 if (cipherInit()) {
                     cryptoObject = FingerprintManager.CryptoObject(cipher)
@@ -89,13 +89,7 @@ open class LockActivity : BaseActivity(), IBaseUI {
                         val helper = FingerprintHandler(this@LockActivity)
                         helper.startAuth(fingerprintManager!!, cryptoObject!!)
                     }
-                } else {
-                    Toast.makeText(this@LockActivity, "cipherInitFalse", Toast.LENGTH_SHORT).show()
-                    iv_fingerprint.visibility = View.GONE
                 }
-            } else {
-                iv_fingerprint.visibility = View.GONE
-
             }
         }
     }
@@ -207,13 +201,7 @@ open class LockActivity : BaseActivity(), IBaseUI {
     private fun generateKey() {
         try {
             keyStore = KeyStore.getInstance("AndroidKeyStore")
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-        val keyGenerator: KeyGenerator
-        try {
-            keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
+            val keyGenerator: KeyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
             keyStore?.load(null)
             keyGenerator.init(KeyGenParameterSpec.Builder(KEY_NAME, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
                     .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
